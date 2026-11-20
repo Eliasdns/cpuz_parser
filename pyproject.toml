@@ -1,7 +1,7 @@
 [project]
 name = "cpuz_parser"
 description = "Parse CPU-Z TXT report file into a structured object and a human-readable string"
-version = "0.1.0"
+version = "v0.1.0-alpha"
 requires-python = ">=3.12"
 readme = "README.md"
 authors = [
