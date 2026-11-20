@@ -8,8 +8,25 @@ authors = [
     { name = "Elias De Nadai Nalesso Silva", email = "pro.eliasdns@gmail.com" },
 ]
 classifiers = [
-    "Programming Language :: Python :: 3",
+    "Development Status :: 3 - Alpha",
+    "License :: OSI Approved :: MIT License",
+    "Natural Language :: English",
+
     "Operating System :: OS Independent",
+    "Programming Language :: Python :: 3",
+    "Typing :: Typed",
+
+    "Environment :: Console",
+
+    "Topic :: System :: Hardware",
+    "Topic :: System :: Systems Administration",
+    "Topic :: Text Processing",
+    "Topic :: Utilities",
+    "Topic :: Software Development :: Libraries :: Python Modules",
+
+    "Intended Audience :: Developers",
+    "Intended Audience :: Information Technology",
+    "Intended Audience :: System Administrators",
 ]
 
 # MARK: Dependencies
