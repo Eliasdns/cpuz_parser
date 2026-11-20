@@ -1,0 +1,246 @@
+[project]
+name = "cpuz_parser"
+description = "Parse CPU-Z TXT report file into a structured object and a human-readable string"
+version = "0.1.0"
+requires-python = ">=3.12"
+readme = "README.md"
+authors = [
+    { name="Elias De Nadai Nalesso Silva", email="pro.eliasdns@gmail.com" },
+]
+classifiers = [
+    "Programming Language :: Python :: 3",
+    "Operating System :: OS Independent",
+]
+
+# MARK: Dependencies
+# uv sync --all-extras --all-groups
+# uv lock --upgrade
+# uv export --all-extras --all-groups > requirements.txt
+dependencies = []
+
+[project.optional-dependencies]  # Extras
+# uv add <pkg> --optional ci
+ci = [
+    # --- Docs ---
+    "cpuz_parser[docs]",
+
+    # --- Automated Tests ---
+    "nox",
+    "nox-uv",
+    "pytest",
+    # "pytest-asyncio",
+    "pytest-xdist[psutil]",
+    "coverage",
+    # "Faker",
+    # "hypothesis",
+
+    # --- Static Analysis ---
+    # Versao atual do MyPy no VSCode (ext ms-python.mypy-type-checker)
+    # https://github.com/microsoft/vscode-mypy?tab=readme-ov-file#mypy-extension-for-visual-studio-code
+    # 1.15
+    "mypy",
+    "bandit[toml]",
+    "ruff",
+
+    # Verificar ausencias:
+    # On Linux: rm -rf .mypy_cache && MYPYPATH=src mypy --install-types --namespace-packages --explicit-package-bases .
+    # On PowerShell: rm -Force .mypy_cache ; $env:MYPYPATH="src" ; uv run mypy --install-types --namespace-packages --explicit-package-bases .
+]
+docs = [
+    "Sphinx~=9.0",
+    "pydata-sphinx-theme",  # "sphinx-rtd-theme",
+    "myst-parser[linkify]",
+    "sphinx-copybutton",  # add a copy button to code blocks
+    # "sphinxcontrib-mermaid",
+]
+
+[dependency-groups]
+# Unlike optional dependencies,
+#   dev dependencies are local-only dependencies,
+#   and will not be included in the project requirements when published to PyPI or other indexes.
+# https://docs.astral.sh/uv/concepts/projects/dependencies/#development-dependencies
+# uv add --group dev <pkg>
+# uv add --dev <pkg>
+dev = [
+    "ipython",
+    "ipdb",
+    "debugpy",
+    "pytest-watcher",  # Automatically rerun your tests on file modifications
+    # Watch a Sphinx directory and rebuild the documentation when a change is detected.
+    # Also includes a hot-reload web server
+    "sphinx-autobuild",
+]
+
+# [tool.uv]
+# default-groups = "all"
+
+
+# MARK: Commands
+[project.scripts]
+cpuz-parser = "cpuz_parser.cpuz_parser:main"
+
+
+# MARK: Build
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+
+# MARK: pytest
+# pytest .
+[tool.pytest.ini_options]
+pythonpath = "src"
+DJANGO_SETTINGS_MODULE = "core.settings"
+# https://playwright.dev/python/docs/test-runners#async-fixtures
+# asyncio_default_test_loop_scope = "session"
+testpaths = [
+    "src",
+    "tests",
+]
+python_files = [
+    'test.py',
+    'tests.py',
+    'test_*.py',
+    'tests_*.py',
+    '*_test.py',
+    '*_tests.py',
+]
+addopts = [
+    # "-n", "auto",  # '--numprocesses' of pytest-xdist
+
+    # "-rP",  # extra test summary info: char P
+    # # "-rA",  # extra test summary info: char A
+    "--tb=short",
+    "-p", "no:warnings",  # "--disable-warnings"
+
+    # "--pdb", "--pdbcls=IPython.terminal.debugger:TerminalPdb",  # Debug breakpoints
+    # "-s",  # Shortcut for --capture=no
+
+    "--strict-markers",
+    "--import-mode=importlib",
+
+    "--doctest-modules",
+    "--doctest-continue-on-failure",
+    # "--ignore-glob=*/pages/*/main.py",
+]
+# pytest --markers
+# pytest --collect-only -q -m 'unit'
+markers = [
+    "slow: Slow tests",
+    "unit: Unit tests",
+    "integration: Integration tests",
+    "e2e: End-to-end browser tests",
+    "architecture: Architecture tests",
+]
+
+
+# MARK: Coverage.py
+# coverage run -m pytest .
+# coverage report -m
+# coverage html
+[tool.coverage.run]
+branch = true
+omit = [
+    '*/__pycache__/*',
+    'venv/*',
+    '.venv/*',
+    '.nox/*',
+    'noxfile.py',
+    'htmlcov/*',
+    '.hypothesis/*',
+    '*/test.py',
+    '*/tests.py',
+    '*/test_*.py',
+    '*/tests_*.py',
+    '*/*_test.py',
+    '*/*_tests.py',
+    '*/tests/*',
+]
+
+
+# MARK: Mypy
+# mypy .
+[tool.mypy]
+# python_version = "3.12"
+# strict = true
+# check_untyped_defs = true
+# # https://mypy.readthedocs.io/en/stable/running_mypy.html#mapping-paths-to-modules
+# # https://mypy.readthedocs.io/en/stable/config_file.html#confval-explicit_package_bases
+mypy_path = "$MYPY_CONFIG_FILE_DIR/src"  # "src"
+namespace_packages = true
+explicit_package_bases = true
+
+# exclude_gitignore = true
+exclude = [
+    '^__pycache__$',
+    '^[.]git$',
+    '^venv$',
+    '^[.]venv$',
+    '^[.]nox$',
+    '^[.]vscode$',
+    '^.*_cache$',
+    '^[.]hypothesis$',
+    '^htmlcov$',
+    '^[.]bkp$',
+]
+
+[[tool.mypy.overrides]]
+module = [
+    "ipdb",
+]
+follow_untyped_imports = true
+ignore_missing_imports = true
+
+
+# MARK: Ruff
+# ruff check .
+# ruff check --select UP035 --fix .
+[tool.ruff]
+line-length = 120
+exclude = [
+    "__pycache__",
+    ".git",
+    "venv",
+    ".venv",
+    ".nox",
+    ".hypothesis",
+    ".vscode",
+    "/*_cache",
+]
+
+# [tool.ruff.lint]
+# select = [
+#     "E",
+#     "F",
+#     "W",
+#     "I",  # isort
+# ]
+# # extend-select = ["W"]
+# # ignore = []
+
+# https://docs.astral.sh/ruff/settings/#lintisort
+[tool.ruff.lint.isort]
+lines-after-imports = 2
+
+[tool.ruff.format]
+quote-style = "single"
+
+
+# MARK: Bandit
+# bandit -c pyproject.toml -r .
+[tool.bandit]
+exclude_dirs = [
+    '__pycache__',
+    '.git',
+    'venv',
+    '.venv',
+    '.nox',
+    'htmlcov',
+    '.hypothesis',
+    '*_cache',
+    '.vscode',
+    'tests',
+    '*/tests',
+    '*/test_*.py',
+    '.bkp',
+]

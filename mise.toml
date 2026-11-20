@@ -1,0 +1,99 @@
+[tools]
+uv = "latest"
+
+[shell_alias]
+# m = "mise"
+mr = "mise run"
+mx = "mise exec --"
+
+[settings]
+# python.uv_venv_auto = "source"
+# to create if missing:
+python.uv_venv_auto = "create|source"
+
+[env]
+_.python.venv = { create = true, path = ".venv" }
+# To strictly ensure uv uses mise's managed Python interpreter:
+# UV_PYTHON = { value = "{{ tools.python.path }}", tools = true }
+
+
+[tasks.uv-sync-all]
+alias="uvs"
+description = "uv sync, with all extras and all groups."
+run = "uv sync --all-extras --all-groups"
+
+[tasks.install_deps]
+description = "Install project dependencies."
+run = "uv sync --frozen --no-install-project --no-dev"
+
+[tasks."install_deps:ci"]
+description = "Install project dependencies, for CI."
+run = "uv sync --frozen --no-install-project --no-dev --extra ci"
+
+[tasks.test]
+description = "Run tests."
+# To run tests in parallel (pytest-xdist): pytest -n auto
+run = "pytest"
+
+[tasks."test:debug"]
+alias = "testd"
+description = "Run tests, with debug support."
+# run = "mise run test --pdb --pdbcls=IPython.terminal.debugger:TerminalPdb -s"
+run = "mise run test -s"
+
+[tasks."test:nox"]
+alias = "nox"
+description = "Run nox tests session."
+# XXX: --parallel/-j are experimental for now
+run = "nox -j 12 --allow-parallel -v -s tests"
+
+[tasks.coverage]
+alias = "cov"
+description = "Report test coverage."
+run = [
+    "coverage run -m pytest",
+    "coverage html",
+]
+
+[tasks.lint]
+description = "Run linter."
+run = "ruff check ."
+
+[tasks.typecheck]
+description = "Static type check."
+# mypy --exclude-gitignore .
+run = "mypy ."
+
+[tasks.seccheck]
+description = "Static security analysis."
+run = "bandit -c pyproject.toml -r ."
+
+[tasks.static_checks]
+alias = "sca"
+description = "Run Static Code Analysis (SCA) tools."
+depends = [
+    "lint",
+    "seccheck",
+    "typecheck",
+]
+
+[tasks.install_types]
+description = "Install packages for types (stub files), using mypy."
+run = "rm -rf .mypy_cache && MYPYPATH=src mypy --install-types --namespace-packages --explicit-package-bases ."
+run_windows = '''if exist .mypy_cache rmdir /s /q .mypy_cache & set "MYPYPATH=src" & uv run mypy --install-types --namespace-packages --explicit-package-bases .'''
+
+[tasks."build_docs:html"]
+alias = "docs"
+description = "Build the project documentation, in HTML."
+run = [
+    "echo The docs index page will are in: _build/html/index.html",
+    "sphinx-build -M html {{ config_root }}/docs {{ config_root }}/_build",
+]
+
+[tasks."build_docs_watch:html"]
+alias = "docsw"
+description = "Build the project documentation, and auto-rebuild, in HTML."
+run = [
+    "echo The docs index page will are in: _build/html/index.html",
+    "sphinx-autobuild --port 8080 -M html {{ config_root }}/docs {{ config_root }}/_build",
+]
