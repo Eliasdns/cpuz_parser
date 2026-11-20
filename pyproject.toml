@@ -5,7 +5,7 @@ version = "0.1.0"
 requires-python = ">=3.12"
 readme = "README.md"
 authors = [
-    { name="Elias De Nadai Nalesso Silva", email="pro.eliasdns@gmail.com" },
+    { name = "Elias De Nadai Nalesso Silva", email = "pro.eliasdns@gmail.com" },
 ]
 classifiers = [
     "Programming Language :: Python :: 3",
