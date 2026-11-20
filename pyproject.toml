@@ -48,7 +48,7 @@ ci = [
 ]
 docs = [
     "Sphinx~=9.0",
-    "pydata-sphinx-theme",  # "sphinx-rtd-theme",
+    "pydata-sphinx-theme",  # "sphinx-rtd-theme",  # "furo",
     "myst-parser[linkify]",
     "sphinx-copybutton",  # add a copy button to code blocks
     # "sphinxcontrib-mermaid",
