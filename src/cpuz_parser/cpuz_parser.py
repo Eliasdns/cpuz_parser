@@ -5,12 +5,12 @@ from abc import ABC
 from collections import Counter
 from copy import deepcopy
 from pathlib import Path
-from typing import IO
+from typing import IO, Any
 
 
 class SystemInfo(ABC):
-    def __init__(self):
-        self._system_info = {}
+    def __init__(self) -> None:
+        self._system_info: dict[str, Any] = {}
         self._system_info['motherboard'] = {}
         self._system_info['motherboard']['vendor'] = ''
         self._system_info['motherboard']['model'] = ''
@@ -77,7 +77,11 @@ class SystemInfo(ABC):
 
 
 class CpuzTxtParser(SystemInfo):
-    def __init__(self, txt_file: IO | str | None = None, ram_freq_translate: dict | None = None):
+    def __init__(
+        self,
+        txt_file: IO | str | None = None,
+        ram_freq_translate: dict | None = None,
+    ) -> None:
         super().__init__()
 
         # ram_freqs_single_mul2_to_friendly_dict
@@ -100,7 +104,7 @@ class CpuzTxtParser(SystemInfo):
             self.parse_gpu()
             self.parse_os()
 
-    def parse_motherboard(self):
+    def parse_motherboard(self) -> None:
         regex_motherboard = re.compile(r"""
             ^DMI[ ]Baseboard\s*$  # Header secundário
             (.|\n)*?  # DOTALL não guloso
@@ -116,7 +120,7 @@ class CpuzTxtParser(SystemInfo):
             self._system_info['motherboard']['model'] = match_motherboard_dict['model']
             # self._system_info['motherboard']['revision'] = match_motherboard_dict['revision']
 
-    def parse_bios(self):
+    def parse_bios(self) -> None:
         regex_bios = re.compile(r"""
             # ^DMI\n-+$  # Header principal
             # (?s:.*?)(?!^-+)  # Não funcionando corretamento, ainda dando match caso (^-+) anteceda Header secundário
@@ -136,7 +140,7 @@ class CpuzTxtParser(SystemInfo):
             self._system_info['bios']['version'] = match_bios_dict['version']
             self._system_info['bios']['date'] = match_bios_dict['date']
 
-    def parse_cpu(self):
+    def parse_cpu(self) -> None:
         regex_cpu = re.compile(r"""
             ^(Socket|Processor)[ ]\d+\s+ID[ ]=[ ]\d+$  # Header secundário
             (.|\n)*?  # DOTALL não guloso
@@ -146,7 +150,7 @@ class CpuzTxtParser(SystemInfo):
 
         self._system_info['cpu'] = [x.groupdict()['cpu'] for x in regex_cpu.finditer(self.txt_content)]
 
-    def parse_ram(self):
+    def parse_ram(self) -> None:
         regex_ram_size = re.compile(r"""
             ^Chipset\n-+$ # Header
             (.|\n)*?  # DOTALL não guloso
@@ -179,7 +183,7 @@ class CpuzTxtParser(SystemInfo):
                 'manufacturer': match_slots_dict['manufacturer'],
             }))
 
-    def parse_gpu(self):
+    def parse_gpu(self) -> None:
         regex_gpu = re.compile(r"""
             ^Display[ ]adapter[ ]\d\s*$  # Header secundário
             (.|\n)*?  # DOTALL não guloso
@@ -188,7 +192,7 @@ class CpuzTxtParser(SystemInfo):
 
         self._system_info['gpu'] = [x.groupdict()['gpu'] for x in regex_gpu.finditer(self.txt_content)]
 
-    def parse_os(self):
+    def parse_os(self) -> None:
         regex_os = re.compile(r"""
             ^Windows[ ]Version  # Header secundário
             \s+(?P<os>.*)$
@@ -199,7 +203,8 @@ class CpuzTxtParser(SystemInfo):
             # self._system_info['os'] = [ match.groupdict()['os'].replace('  ', ' ').replace('   ', ' ') ]
             self._system_info['os'] = [ match.groupdict()['os'] ]
 
-    def transform_ram_slot(self, slot: dict) -> dict:  # Transform 'bandwidth', 'size' and 'manufacturer' fields
+    # Transform 'bandwidth', 'size' and 'manufacturer' fields
+    def transform_ram_slot(self, slot: dict) -> dict:
         # Transform 'size'
         try:
             slot['size'] = str(float( slot['size'].replace(' MBytes', '') ) / 1024)
