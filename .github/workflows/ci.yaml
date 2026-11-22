@@ -1,0 +1,68 @@
+name: Run automatic Continuous Integration
+on:
+  pull_request:
+  workflow_dispatch:
+    inputs:
+      lint:
+        description: 'Run Linter?'
+        required: false
+        type: boolean
+        default: true
+      typecheck:
+        description: 'Run Static Type Check?'
+        required: false
+        type: boolean
+        default: true
+      seccheck:
+        description: 'Run Static Security Analysis?'
+        required: false
+        type: boolean
+        default: true
+      nox_tests:
+        description: 'Run nox tests Session?'
+        required: false
+        type: boolean
+        default: true
+
+jobs:
+  ci:
+    name: Run Continuous Integration
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v7
+
+      - name: Install mise
+        run: |
+          curl https://mise.run | sh
+          echo "$HOME/.local/share/mise/bin" >> $GITHUB_PATH
+          echo "$HOME/.local/share/mise/shims" >> $GITHUB_PATH
+
+      - name: Install Dependencies
+        env:
+          NOX_TESTS: ${{ github.event_name != 'pull_request' && inputs.nox_tests }}
+        run: |
+          set -e
+          mise install
+          mise run install_deps:ci
+
+      - name: Run Linter
+        if: ${{ github.event_name == 'pull_request' || inputs.lint }}
+        run: |
+          mise run lint
+
+      - name: Run Static Type Check
+        if: ${{ github.event_name == 'pull_request' || inputs.typecheck }}
+        run: |
+          mise run typecheck
+
+      - name: Run Static Security Analysis
+        if: ${{ github.event_name == 'pull_request' || inputs.seccheck }}
+        run: |
+          mise run seccheck
+
+      # FIXME: download the 'fixtures/cpuz-reports/TXTs'
+      - name: Run nox tests Session
+        if: ${{ github.event_name != 'pull_request' && inputs.nox_tests }}
+        run: |
+          mise run test:nox
