@@ -10,7 +10,7 @@ from cpuz_parser import CpuzTxtParser
 from cpuz_parser.cpuz_parser import system_info_cli
 
 
-pytestmark = pytest.mark.unit
+pytestmark = pytest.mark.smoke
 
 
 FIXTURES_DIR = (Path(__file__).parent / '../fixtures').resolve()
