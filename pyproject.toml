@@ -139,7 +139,7 @@ Issues = "https://github.com/Eliasdns/cpuz_parser/issues"
 
 # MARK: Commands
 [project.scripts]
-cpuz-parser = "cpuz_parser.cli:main"
+cpuz_parser = "cpuz_parser.cli:main"
 
 
 # MARK: Build
