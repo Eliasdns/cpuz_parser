@@ -3,10 +3,13 @@ name = "cpuz_parser"
 description = "Parse CPU-Z TXT report file into a structured object and a human-readable string"
 version = "v0.1.0-alpha"
 requires-python = ">=3.12"
+
 readme = "README.md"
 authors = [
     { name = "Elias De Nadai Nalesso Silva", email = "pro.eliasdns@gmail.com" },
 ]
+license = "MIT"
+license-files = ["LICEN[CS]E.*"]
 classifiers = [
     "Development Status :: 3 - Alpha",
     "License :: OSI Approved :: MIT License",
@@ -28,6 +31,8 @@ classifiers = [
     "Intended Audience :: Information Technology",
     "Intended Audience :: System Administrators",
 ]
+keywords = ["cpuz", "cpu-z", "cpu", "z", "txt", "report", "parser", "processing", "structured", "human-readable"]
+
 
 # MARK: Dependencies
 # uv sync --all-extras --all-groups
@@ -90,6 +95,15 @@ dev = [
 
 # [tool.uv]
 # default-groups = "all"
+
+
+# MARK: URLs
+[project.urls]
+"Home Page" = "https://github.com/Eliasdns/cpuz_parser"
+# Documentation = "https://readthedocs.org"
+GitHub = "https://github.com/Eliasdns/cpuz_parser"
+Repository = "https://github.com/Eliasdns/cpuz_parser.git"
+Issues = "https://github.com/Eliasdns/cpuz_parser/issues"
 
 
 # MARK: Commands
