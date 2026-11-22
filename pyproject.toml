@@ -69,10 +69,20 @@ dev = [
 # https://docs.astral.sh/uv/concepts/projects/dependencies/#dependency-groups
 # https://docs.astral.sh/uv/concepts/projects/dependencies/#nesting-groups
 ci = [
-    # --- Docs ---
     {include-group = "docs"},
-
-    # --- Automated Tests ---
+    {include-group = "test"},
+    {include-group = "sca"},
+]
+# --- Docs ---
+docs = [
+    "Sphinx~=9.0",
+    "pydata-sphinx-theme",  # "sphinx-rtd-theme",  # "furo",
+    "myst-parser[linkify]",
+    "sphinx-copybutton",  # add a copy button to code blocks
+    # "sphinxcontrib-mermaid",
+]
+# --- Automated Tests ---
+test = [
     "nox",
     "nox-uv",
     "pytest",
@@ -81,27 +91,25 @@ ci = [
     "coverage",
     # "Faker",
     # "hypothesis",
-
-    # --- Static Analysis ---
+]
+# --- Static Code Analysis ---
+sca = [
+    # -- Type check --
     # Versao atual do MyPy no VSCode (ext ms-python.mypy-type-checker):
     # https://github.com/microsoft/vscode-mypy?tab=readme-ov-file#mypy-extension-for-visual-studio-code
     # 1.15
     "mypy",
+    # -- Security check --
     "bandit[toml]",
+    # -- Lint --
     "ruff",
 
+    # -- Types / Stub packages --
     # Verificar ausencias:
     # On Linux:
     #   $ rm -rf .mypy_cache && MYPYPATH=src mypy --install-types --namespace-packages --explicit-package-bases .
     # On PowerShell:
     #   $ rm -Force .mypy_cache ; $env:MYPYPATH="src" ; uv run mypy --install-types --namespace-packages --explicit-package-bases .
-]
-docs = [
-    "Sphinx~=9.0",
-    "pydata-sphinx-theme",  # "sphinx-rtd-theme",  # "furo",
-    "myst-parser[linkify]",
-    "sphinx-copybutton",  # add a copy button to code blocks
-    # "sphinxcontrib-mermaid",
 ]
 
 # [tool.uv]
