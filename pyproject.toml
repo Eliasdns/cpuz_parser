@@ -35,13 +35,13 @@ keywords = ["cpuz", "cpu-z", "cpu", "z", "txt", "report", "parser", "processing"
 
 
 # MARK: Dependencies
-# uv sync --all-extras --all-groups
-# uv lock --upgrade
-# uv export --all-extras --all-groups > requirements.txt
+# $ uv sync --all-extras --all-groups
+# $ uv lock --upgrade
+# $ uv export --all-extras --all-groups > requirements.txt
 dependencies = []
 
 [project.optional-dependencies]  # Extras
-# uv add <pkg> --optional ci
+# $ uv add <pkg> --optional ci
 ci = [
     # --- Docs ---
     "cpuz_parser[docs]",
@@ -65,8 +65,10 @@ ci = [
     "ruff",
 
     # Verificar ausencias:
-    # On Linux: rm -rf .mypy_cache && MYPYPATH=src mypy --install-types --namespace-packages --explicit-package-bases .
-    # On PowerShell: rm -Force .mypy_cache ; $env:MYPYPATH="src" ; uv run mypy --install-types --namespace-packages --explicit-package-bases .
+    # On Linux:
+    #   $ rm -rf .mypy_cache && MYPYPATH=src mypy --install-types --namespace-packages --explicit-package-bases .
+    # On PowerShell:
+    #   $ rm -Force .mypy_cache ; $env:MYPYPATH="src" ; uv run mypy --install-types --namespace-packages --explicit-package-bases .
 ]
 docs = [
     "Sphinx~=9.0",
@@ -81,8 +83,8 @@ docs = [
 #   dev dependencies are local-only dependencies,
 #   and will not be included in the project requirements when published to PyPI or other indexes.
 # https://docs.astral.sh/uv/concepts/projects/dependencies/#development-dependencies
-# uv add --group dev <pkg>
-# uv add --dev <pkg>
+# $ uv add --group dev <pkg>
+# $ uv add --dev <pkg>
 dev = [
     "ipython",
     "ipdb",
@@ -118,7 +120,7 @@ build-backend = "hatchling.build"
 
 
 # MARK: pytest
-# pytest .
+# $ pytest
 [tool.pytest.ini_options]
 pythonpath = "src"
 DJANGO_SETTINGS_MODULE = "core.settings"
@@ -154,8 +156,8 @@ addopts = [
     "--doctest-continue-on-failure",
     # "--ignore-glob=*/pages/*/main.py",
 ]
-# pytest --markers
-# pytest --collect-only -q -m 'unit'
+# $ pytest --markers
+# $ pytest --collect-only -q -m 'unit'
 markers = [
     "slow: Slow tests",
     "unit: Unit tests",
@@ -166,9 +168,9 @@ markers = [
 
 
 # MARK: Coverage.py
-# coverage run -m pytest .
-# coverage report -m
-# coverage html
+# $ coverage run -m pytest -m 'unit'
+# $ coverage report -m
+# $ coverage html
 [tool.coverage.run]
 branch = true
 omit = [
@@ -190,7 +192,7 @@ omit = [
 
 
 # MARK: Mypy
-# mypy .
+# $ mypy .
 [tool.mypy]
 # python_version = "3.12"
 # strict = true
@@ -224,8 +226,8 @@ ignore_missing_imports = true
 
 
 # MARK: Ruff
-# ruff check .
-# ruff check --select UP035 --fix .
+# $ ruff check .
+# $ ruff check --select UP035 --fix .
 [tool.ruff]
 line-length = 120
 exclude = [
@@ -258,7 +260,7 @@ quote-style = "single"
 
 
 # MARK: Bandit
-# bandit -c pyproject.toml -r .
+# $ bandit -c pyproject.toml -r .
 [tool.bandit]
 exclude_dirs = [
     '__pycache__',
