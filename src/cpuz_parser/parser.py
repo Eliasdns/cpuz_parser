@@ -1,13 +1,12 @@
 from __future__ import annotations
 
-import os
 import re
-import sys
 from abc import ABC
 from collections import Counter
 from copy import deepcopy
-from pathlib import Path
 from typing import IO, Any
+
+from .exporters import to_plain
 
 
 class SystemInfo(ABC):
@@ -37,28 +36,8 @@ class SystemInfo(ABC):
     def update_system_info(self, *args, **kwargs) -> None:
         return self._system_info.update(*args, **kwargs)
 
-    @property
-    def system_info_str(self) -> str:
-        si = self.system_info
-        si_str = ''
-
-        si_str += 'Motherboard: {}\n'.format(' '.join(filter(None,
-            (si['motherboard']['vendor'], si['motherboard']['model'])
-        )))
-        si_str += 'BIOS: {}\n'.format(' '.join(filter(None,
-            (si['bios']['vendor'], si['bios']['version'], si['bios']['date'])
-        )))
-        si_str += f"CPU: {' + '.join(si['cpu'])}\n"
-        si_str += f"Memory: {si['ram']['size']}\n"
-        for slot in si['ram']['slots']:
-            si_str += f'{slot}\n'
-        si_str += f"Graphics: {' + '.join(si['gpu'])}\n"
-        si_str += f"Operating System: {' + '.join(si['os'])}\n"
-
-        return si_str
-
     def __str__(self) -> str:
-        return self.system_info_str
+        return to_plain(self)
 
     @staticmethod
     def count_slots(slots: list) -> list:
@@ -233,53 +212,3 @@ class CpuzTxtParser(SystemInfo):
                 pass
 
         return slot
-
-
-def system_info_cli(argv: list | None = None, ram_freq_translate: dict | None = None) -> None:
-    PROJ_ROOT = (Path(__file__).parent / '../../').resolve()
-
-    if ram_freq_translate is None:
-        ram_freq_translate = {}
-
-    if argv is None or len(argv) == 1:
-        txt_file_name = str(PROJ_ROOT / 'fixtures/cpuz-reports/CPUZ-Report.txt')
-        pause = 'nopause'
-    elif len(argv) == 2:
-        txt_file_name = argv[1]
-        pause = 'pause'
-    elif len(argv) == 3:
-        txt_file_name = argv[1]
-        pause = argv[2]
-    else:
-        print("[!] Too many arguments!")
-        sys.exit(1)
-
-    if os.path.isfile(txt_file_name):
-        system_info = CpuzTxtParser(txt_file_name, ram_freq_translate)
-        print(system_info.system_info_str)
-
-    if pause == "pause":
-        print("\n\n------------------------------")
-        # XXX cmd.exe only
-        os.system("pause>nul | echo [*] Fim! Pressione qualquer tecla para Sair...")  # nosec B605, B607
-    elif pause == "nopause":
-        pass
-
-
-def main() -> int:
-    import json
-
-    PROJ_ROOT = (Path(__file__).parent / '../../').resolve()
-
-    with open(PROJ_ROOT / 'config.json', 'r', encoding='utf-8') as json_file:
-        ram_freqs_single_mul2_to_friendly_dict = {
-            str(k): str(v) for k, v in dict(json.load(json_file)['ram_freqs_single_mul2_to_friendly']).items()
-        }
-
-    system_info_cli(sys.argv, ram_freqs_single_mul2_to_friendly_dict)
-
-    return 0
-
-
-if __name__ == '__main__':
-    main()

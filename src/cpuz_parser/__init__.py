@@ -1,4 +1,4 @@
-from .cpuz_parser import CpuzTxtParser
+from .parser import CpuzTxtParser
 
 
 __all__ = [
