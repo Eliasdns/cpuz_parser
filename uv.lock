@@ -514,6 +514,9 @@ ci = [
     { name = "sphinx", version = "9.1.1", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version == '3.12.*'" },
     { name = "sphinx", version = "9.2.0", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version >= '3.13'" },
     { name = "sphinx-copybutton" },
+    { name = "types-colorama" },
+    { name = "types-pexpect" },
+    { name = "types-pygments" },
 ]
 dev = [
     { name = "debugpy" },
@@ -534,6 +537,9 @@ sca = [
     { name = "bandit" },
     { name = "mypy" },
     { name = "ruff" },
+    { name = "types-colorama" },
+    { name = "types-pexpect" },
+    { name = "types-pygments" },
 ]
 test = [
     { name = "coverage" },
@@ -565,6 +571,9 @@ ci = [
     { name = "ruff" },
     { name = "sphinx", specifier = "~=9.0" },
     { name = "sphinx-copybutton" },
+    { name = "types-colorama" },
+    { name = "types-pexpect" },
+    { name = "types-pygments" },
 ]
 dev = [
     { name = "debugpy" },
@@ -583,6 +592,9 @@ sca = [
     { name = "bandit", extras = ["toml"] },
     { name = "mypy" },
     { name = "ruff" },
+    { name = "types-colorama" },
+    { name = "types-pexpect" },
+    { name = "types-pygments" },
 ]
 test = [
     { name = "coverage" },
@@ -1844,6 +1856,33 @@ source = { registry = "https://pypi.org/simple" }
 sdist = { url = "https://files.pythonhosted.org/packages/2c/2e/a7fbfe268c8a3b32546930c0297c101d65a4a14c304ad5790a9f478f0e4e/traitlets-5.16.1.tar.gz", hash = "sha256:ed900c2b631aa3a112811139fa97b8d2c3bad5e989656bba4b7e52c7852c18c1", size = 166137, upload-time = "2026-08-03T08:32:36.848Z" }
 wheels = [
     { url = "https://files.pythonhosted.org/packages/ad/66/0d785f0bc5e4315a96c989bb476d0fc07ea4f85132550c7b156ca2035d52/traitlets-5.16.1-py3-none-any.whl", hash = "sha256:f775618166caa0396c8e337099240f2bd3e5e917d203b2e6fbe21a58d3cb1f6b", size = 86211, upload-time = "2026-08-03T08:32:34.48Z" },
+]
+
+[[package]]
+name = "types-colorama"
+version = "0.4.15.20260508"
+source = { registry = "https://pypi.org/simple" }
+sdist = { url = "https://files.pythonhosted.org/packages/be/d5/4870d88c6c87adf786ef33d674cbf82b3a2d5fcbe6deec29282cff80e8b3/types_colorama-0.4.15.20260508.tar.gz", hash = "sha256:3a8916039e57452bd21f57e674e1f221ca9e4f319893c5e3bbd37b845c27d8e6", size = 10638, upload-time = "2026-05-08T04:47:14.593Z" }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/56/33/a3449e3e93c43861b92d0a93ed4ea5505756463e507625812cfb29c91c7a/types_colorama-0.4.15.20260508-py3-none-any.whl", hash = "sha256:b0c39908a3e5171ef1f8bf3d59fae082e9eaff3a19ca49b6d640b83f78cff61c", size = 10755, upload-time = "2026-05-08T04:47:13.761Z" },
+]
+
+[[package]]
+name = "types-pexpect"
+version = "4.9.0.20261122"
+source = { registry = "https://pypi.org/simple" }
+sdist = { url = "https://files.pythonhosted.org/packages/fd/a1/26091e6d842abba7d631228fc9777d0343778f86c3a96626c1ae4d11f5b2/types_pexpect-4.9.0.20261122.tar.gz", hash = "sha256:cc341c96eb4c169db14ddeae3110d445dfef036a19a33ecee636e355a6256ac4", size = 13788, upload-time = "2026-11-22T08:58:58.522Z" }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/59/00/d31adc05dec5f33fb2570967e05c598b2b0e690d3c6150a6f5c122ac647e/types_pexpect-4.9.0.20261122-py3-none-any.whl", hash = "sha256:5dc9ebf7fa34303edceac8d08b2a38e26e1e0a68c3291bf4fc503310f0383791", size = 17278, upload-time = "2026-11-22T08:58:57.717Z" },
+]
+
+[[package]]
+name = "types-pygments"
+version = "2.21.0.20261122"
+source = { registry = "https://pypi.org/simple" }
+sdist = { url = "https://files.pythonhosted.org/packages/7e/fb/9133f6bef7a3123462e5604207f6b7f8c3b7dd2c032ef00e983536468b35/types_pygments-2.21.0.20261122.tar.gz", hash = "sha256:05cf2c546f607c89a6ea93b939939a40fe8af277da9084b2d0774e4926002f84", size = 21803, upload-time = "2026-11-22T08:59:56.306Z" }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/f4/6f/a160652e16cdff022009e878dcb8c260be3a29b03b16d53bb7050f39c645/types_pygments-2.21.0.20261122-py3-none-any.whl", hash = "sha256:2f1a2ee6db3c464d344bd5bb591a2faf7e433f1aa8adc7cd3ae8e529f3f2a5f2", size = 29254, upload-time = "2026-11-22T08:59:55.508Z" },
 ]
 
 [[package]]

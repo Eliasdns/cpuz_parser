@@ -110,6 +110,9 @@ sca = [
     #   $ rm -rf .mypy_cache && MYPYPATH=src mypy --install-types --namespace-packages --explicit-package-bases .
     # On PowerShell:
     #   $ rm -Force .mypy_cache ; $env:MYPYPATH="src" ; uv run mypy --install-types --namespace-packages --explicit-package-bases .
+    "types-Pygments",
+    "types-colorama",
+    "types-pexpect",
 ]
 
 # [tool.uv]
