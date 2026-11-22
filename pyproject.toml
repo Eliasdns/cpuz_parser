@@ -168,6 +168,7 @@ addopts = [
 # $ pytest --markers
 # $ pytest --collect-only -q -m 'unit'
 markers = [
+    "smoke: Smoke tests",
     "slow: Slow tests",
     "unit: Unit tests",
     "integration: Integration tests",
