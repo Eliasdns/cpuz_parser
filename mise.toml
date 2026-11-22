@@ -28,7 +28,7 @@ run = "uv sync --frozen --no-install-project --no-dev"
 
 [tasks."install_deps:ci"]
 description = "Install project dependencies, for CI."
-run = "uv sync --frozen --no-install-project --no-dev --extra ci"
+run = "uv sync --frozen --no-install-project --no-dev --group ci"
 
 [tasks.test]
 description = "Run tests."
@@ -45,7 +45,7 @@ run = "mise run test -s"
 alias = "nox"
 description = "Run nox tests session."
 # XXX: --parallel/-j are experimental for now
-run = "nox -j 12 --allow-parallel -v -s tests"
+run = "nox -j 5 --allow-parallel -v -s tests"
 
 [tasks.coverage]
 alias = "cov"
