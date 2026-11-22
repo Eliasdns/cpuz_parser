@@ -459,6 +459,12 @@ dependencies = [
 ]
 
 [package.optional-dependencies]
+rich = [
+    { name = "rich" },
+    { name = "rich-click" },
+]
+
+[package.dev-dependencies]
 ci = [
     { name = "bandit" },
     { name = "coverage" },
@@ -474,6 +480,13 @@ ci = [
     { name = "sphinx", version = "9.2.0", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version >= '3.13'" },
     { name = "sphinx-copybutton" },
 ]
+dev = [
+    { name = "debugpy" },
+    { name = "ipdb" },
+    { name = "ipython" },
+    { name = "pytest-watcher" },
+    { name = "sphinx-autobuild" },
+]
 docs = [
     { name = "myst-parser", extra = ["linkify"] },
     { name = "pydata-sphinx-theme" },
@@ -481,48 +494,42 @@ docs = [
     { name = "sphinx", version = "9.2.0", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version >= '3.13'" },
     { name = "sphinx-copybutton" },
 ]
-rich = [
-    { name = "rich" },
-    { name = "rich-click" },
-]
-
-[package.dev-dependencies]
-dev = [
-    { name = "debugpy" },
-    { name = "ipdb" },
-    { name = "ipython" },
-    { name = "pytest-watcher" },
-    { name = "sphinx-autobuild" },
-]
 
 [package.metadata]
 requires-dist = [
-    { name = "bandit", extras = ["toml"], marker = "extra == 'ci'" },
     { name = "click" },
-    { name = "coverage", marker = "extra == 'ci'" },
-    { name = "cpuz-parser", extras = ["docs"], marker = "extra == 'ci'" },
-    { name = "mypy", marker = "extra == 'ci'" },
-    { name = "myst-parser", extras = ["linkify"], marker = "extra == 'docs'" },
-    { name = "nox", marker = "extra == 'ci'" },
-    { name = "nox-uv", marker = "extra == 'ci'" },
-    { name = "pydata-sphinx-theme", marker = "extra == 'docs'" },
-    { name = "pytest", marker = "extra == 'ci'" },
-    { name = "pytest-xdist", extras = ["psutil"], marker = "extra == 'ci'" },
     { name = "rich", marker = "extra == 'rich'" },
     { name = "rich-click", marker = "extra == 'rich'" },
-    { name = "ruff", marker = "extra == 'ci'" },
-    { name = "sphinx", marker = "extra == 'docs'", specifier = "~=9.0" },
-    { name = "sphinx-copybutton", marker = "extra == 'docs'" },
 ]
-provides-extras = ["rich", "ci", "docs"]
+provides-extras = ["rich"]
 
 [package.metadata.requires-dev]
+ci = [
+    { name = "bandit", extras = ["toml"] },
+    { name = "coverage" },
+    { name = "mypy" },
+    { name = "myst-parser", extras = ["linkify"] },
+    { name = "nox" },
+    { name = "nox-uv" },
+    { name = "pydata-sphinx-theme" },
+    { name = "pytest" },
+    { name = "pytest-xdist", extras = ["psutil"] },
+    { name = "ruff" },
+    { name = "sphinx", specifier = "~=9.0" },
+    { name = "sphinx-copybutton" },
+]
 dev = [
     { name = "debugpy" },
     { name = "ipdb" },
     { name = "ipython" },
     { name = "pytest-watcher" },
     { name = "sphinx-autobuild" },
+]
+docs = [
+    { name = "myst-parser", extras = ["linkify"] },
+    { name = "pydata-sphinx-theme" },
+    { name = "sphinx", specifier = "~=9.0" },
+    { name = "sphinx-copybutton" },
 ]
 
 [[package]]

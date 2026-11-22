@@ -49,9 +49,28 @@ rich = [
     "rich-click",
 ]
 
+[dependency-groups]
+# Unlike optional dependencies,
+#   dev dependencies are local-only dependencies,
+#   and will not be included in the project requirements when published to PyPI or other indexes.
+# https://docs.astral.sh/uv/concepts/projects/dependencies/#development-dependencies
+# $ uv add --group dev <pkg>
+# $ uv add --dev <pkg>
+dev = [
+    "ipython",
+    "ipdb",
+    "debugpy",
+    "pytest-watcher",  # Automatically rerun your tests on file modifications
+    # Watch a Sphinx directory and rebuild the documentation when a change is detected.
+    # Also includes a hot-reload web server
+    "sphinx-autobuild",
+]
+
+# https://docs.astral.sh/uv/concepts/projects/dependencies/#dependency-groups
+# https://docs.astral.sh/uv/concepts/projects/dependencies/#nesting-groups
 ci = [
     # --- Docs ---
-    "cpuz_parser[docs]",
+    {include-group = "docs"},
 
     # --- Automated Tests ---
     "nox",
@@ -83,23 +102,6 @@ docs = [
     "myst-parser[linkify]",
     "sphinx-copybutton",  # add a copy button to code blocks
     # "sphinxcontrib-mermaid",
-]
-
-[dependency-groups]
-# Unlike optional dependencies,
-#   dev dependencies are local-only dependencies,
-#   and will not be included in the project requirements when published to PyPI or other indexes.
-# https://docs.astral.sh/uv/concepts/projects/dependencies/#development-dependencies
-# $ uv add --group dev <pkg>
-# $ uv add --dev <pkg>
-dev = [
-    "ipython",
-    "ipdb",
-    "debugpy",
-    "pytest-watcher",  # Automatically rerun your tests on file modifications
-    # Watch a Sphinx directory and rebuild the documentation when a change is detected.
-    # Also includes a hot-reload web server
-    "sphinx-autobuild",
 ]
 
 # [tool.uv]
