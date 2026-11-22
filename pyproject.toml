@@ -205,7 +205,7 @@ omit = [
 [tool.mypy]
 # python_version = "3.12"
 # strict = true
-# check_untyped_defs = true
+check_untyped_defs = true
 # # https://mypy.readthedocs.io/en/stable/running_mypy.html#mapping-paths-to-modules
 # # https://mypy.readthedocs.io/en/stable/config_file.html#confval-explicit_package_bases
 mypy_path = "$MYPY_CONFIG_FILE_DIR/src"  # "src"
