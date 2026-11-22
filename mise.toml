@@ -30,6 +30,10 @@ run = "uv sync --frozen --no-install-project --no-dev"
 description = "Install project dependencies, for CI."
 run = "uv sync --frozen --no-install-project --no-dev --group ci"
 
+[tasks."install_deps:tests"]
+description = "Install project dependencies, for automatic tests."
+run = "uv sync --frozen --no-install-project --no-dev --group tests"
+
 [tasks.test]
 description = "Run tests."
 # To run tests in parallel (pytest-xdist): pytest -n auto
