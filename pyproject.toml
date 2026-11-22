@@ -79,7 +79,7 @@ dev = [
 # https://docs.astral.sh/uv/concepts/projects/dependencies/#nesting-groups
 ci = [
     {include-group = "docs"},
-    {include-group = "test"},
+    {include-group = "tests"},
     {include-group = "sca"},
 ]
 # --- Docs ---
@@ -91,7 +91,7 @@ docs = [
     # "sphinxcontrib-mermaid",
 ]
 # --- Automated Tests ---
-test = [
+tests = [
     "nox",
     "nox-uv",
     "pytest",

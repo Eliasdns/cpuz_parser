@@ -553,7 +553,7 @@ sca = [
     { name = "types-pexpect" },
     { name = "types-pygments" },
 ]
-test = [
+tests = [
     { name = "coverage" },
     { name = "nox" },
     { name = "nox-uv" },
@@ -611,7 +611,7 @@ sca = [
     { name = "types-pexpect" },
     { name = "types-pygments" },
 ]
-test = [
+tests = [
     { name = "coverage" },
     { name = "nox" },
     { name = "nox-uv" },
