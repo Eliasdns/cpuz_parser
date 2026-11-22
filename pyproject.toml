@@ -64,7 +64,7 @@ ci = [
     # "hypothesis",
 
     # --- Static Analysis ---
-    # Versao atual do MyPy no VSCode (ext ms-python.mypy-type-checker)
+    # Versao atual do MyPy no VSCode (ext ms-python.mypy-type-checker):
     # https://github.com/microsoft/vscode-mypy?tab=readme-ov-file#mypy-extension-for-visual-studio-code
     # 1.15
     "mypy",
