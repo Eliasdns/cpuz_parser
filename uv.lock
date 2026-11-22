@@ -493,9 +493,21 @@ dependencies = [
 ]
 
 [package.optional-dependencies]
+all = [
+    { name = "pyyaml" },
+    { name = "rich" },
+    { name = "rich-click" },
+    { name = "tomli-w" },
+]
 rich = [
     { name = "rich" },
     { name = "rich-click" },
+]
+toml = [
+    { name = "tomli-w" },
+]
+yaml = [
+    { name = "pyyaml" },
 ]
 
 [package.dev-dependencies]
@@ -552,10 +564,13 @@ test = [
 [package.metadata]
 requires-dist = [
     { name = "click" },
+    { name = "cpuz-parser", extras = ["rich", "yaml", "toml"], marker = "extra == 'all'" },
+    { name = "pyyaml", marker = "extra == 'yaml'" },
     { name = "rich", marker = "extra == 'rich'" },
     { name = "rich-click", marker = "extra == 'rich'" },
+    { name = "tomli-w", marker = "extra == 'toml'" },
 ]
-provides-extras = ["rich"]
+provides-extras = ["rich", "yaml", "toml", "all"]
 
 [package.metadata.requires-dev]
 ci = [
@@ -1847,6 +1862,15 @@ source = { registry = "https://pypi.org/simple" }
 sdist = { url = "https://files.pythonhosted.org/packages/7a/ec/b628c3b1613fe9340de1c5daba957f5b152159ac350b6ce4ad3d2469f822/stevedore-5.10.0.tar.gz", hash = "sha256:6005f32c09dc3159802a61c04862770e439e32db22f6da78ba56e8a735466882", size = 520466, upload-time = "2026-11-12T11:47:05.38Z" }
 wheels = [
     { url = "https://files.pythonhosted.org/packages/10/78/918aaff2864a8829d061db40acb9da04c89e5c3a01d65932b34432ebd78b/stevedore-5.10.0-py3-none-any.whl", hash = "sha256:47c48dc09e75933106c1bba0a7690eef3b5acecdb807df6d47cc40b2532fa927", size = 56789, upload-time = "2026-11-12T11:47:04.273Z" },
+]
+
+[[package]]
+name = "tomli-w"
+version = "1.2.0"
+source = { registry = "https://pypi.org/simple" }
+sdist = { url = "https://files.pythonhosted.org/packages/19/75/241269d1da26b624c0d5e110e8149093c759b7a286138f4efd61a60e75fe/tomli_w-1.2.0.tar.gz", hash = "sha256:2dd14fac5a47c27be9cd4c976af5a12d87fb1f0b4512f81d69cce3b35ae25021", size = 7184, upload-time = "2025-01-15T12:07:24.262Z" }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/c7/18/c86eb8e0202e32dd3df50d43d7ff9854f8e0603945ff398974c1d91ac1ef/tomli_w-1.2.0-py3-none-any.whl", hash = "sha256:188306098d013b691fcadc011abd66727d3c414c571bb01b1a174ba8c983cf90", size = 6675, upload-time = "2025-01-15T12:07:22.074Z" },
 ]
 
 [[package]]

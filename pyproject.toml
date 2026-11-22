@@ -48,6 +48,15 @@ rich = [
     "rich",
     "rich-click",
 ]
+yaml = [
+    "pyyaml",
+]
+toml = [
+    "tomli-w",
+]
+all = [
+    "cpuz_parser[rich,yaml,toml]",
+]
 
 [dependency-groups]
 # Unlike optional dependencies,
@@ -130,7 +139,7 @@ Issues = "https://github.com/Eliasdns/cpuz_parser/issues"
 
 # MARK: Commands
 [project.scripts]
-cpuz-parser = "cpuz_parser.cpuz_parser:main"
+cpuz-parser = "cpuz_parser.cli:main"
 
 
 # MARK: Build
