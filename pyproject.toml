@@ -38,10 +38,17 @@ keywords = ["cpuz", "cpu-z", "cpu", "z", "txt", "report", "parser", "processing"
 # $ uv sync --all-extras --all-groups
 # $ uv lock --upgrade
 # $ uv export --all-extras --all-groups > requirements.txt
-dependencies = []
+dependencies = [
+    "click",
+]
 
 [project.optional-dependencies]  # Extras
-# $ uv add <pkg> --optional ci
+# $ uv add <pkg> --optional rich
+rich = [
+    "rich",
+    "rich-click",
+]
+
 ci = [
     # --- Docs ---
     "cpuz_parser[docs]",
