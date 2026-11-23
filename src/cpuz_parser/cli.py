@@ -34,7 +34,7 @@ FORMAT_EXTENSION_MAP = {
 }
 
 
-@click.command(name='cpuz-parser', context_settings={'help_option_names': ['-h', '--help']})
+@click.command(name='cpuz_parser', context_settings={'help_option_names': ['-h', '--help']})
 @click.argument(
     'report_file',
     type=click.Path(allow_dash=True, path_type=str),

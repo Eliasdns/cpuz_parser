@@ -34,7 +34,7 @@ class TestCliGeneral:
     def test_help(self, cli_runner: CliRunner) -> None:
         result = cli_runner.invoke(main, ['--help'])
         assert result.exit_code == 0
-        assert 'cpuz-parser' in result.output
+        assert 'cpuz_parser' in result.output
         assert '--format' in result.output
 
     def test_missing_report_argument(self, cli_runner: CliRunner) -> None:
