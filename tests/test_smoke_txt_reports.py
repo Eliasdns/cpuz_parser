@@ -1,4 +1,4 @@
-"""Parameterized tests verifying that all CPU-Z TXT fixture reports parse without error."""
+"""Parameterized tests verifying that all real CPU-Z TXT reports parse without error."""
 
 from __future__ import annotations
 
@@ -7,8 +7,8 @@ from typing import TYPE_CHECKING
 
 import pytest
 
-from cpuz_parser import CpuzTxtParser
 from cpuz_parser.cli import main
+from cpuz_parser.parsers import CpuzTxtParser
 
 
 if TYPE_CHECKING:
@@ -24,12 +24,26 @@ REPORT_TXT_FILES = sorted(ALL_TXT_REPORTS_DIR.glob('*.txt'))
 
 
 def pytest_generate_tests(metafunc: pytest.Metafunc) -> None:
-    """Dynamically parameterize test cases with all discovered CPU-Z TXT reports."""
+    """Dynamically parameterize test cases with all discovered real CPU-Z TXT reports."""
     if 'report_file' in metafunc.fixturenames:
-        metafunc.parametrize('report_file', REPORT_TXT_FILES, ids=[f.name for f in REPORT_TXT_FILES])
+        if not ALL_TXT_REPORTS_DIR.exists() or not REPORT_TXT_FILES:
+            metafunc.parametrize('report_file', [None], ids=['missing_fixtures'])
+        else:
+            metafunc.parametrize('report_file', REPORT_TXT_FILES, ids=[f.name for f in REPORT_TXT_FILES])
 
 
 class TestTxtReports:
+    """Smoke tests validating all real CPU-Z TXT fixture reports."""
+
+    @pytest.fixture(autouse=True)
+    def validate_fixtures_exist(self, report_file: Path | None) -> None:
+        """Ensure real report fixtures exist; fail explicitly if missing."""
+        if report_file is None:
+            pytest.fail(
+                f"No real CPU-Z report (.txt) was found in '{ALL_TXT_REPORTS_DIR}'. "
+                "These fixtures are required to run the Smoke Tests."
+            )
+
     def test_parse_report_no_exception(self, report_file: Path) -> None:
         """Verify CpuzTxtParser instantiates and parses without raising any exception."""
         parser = CpuzTxtParser(str(report_file))
@@ -43,7 +57,7 @@ class TestTxtReports:
         assert isinstance(info_str, str)
         assert len(info_str) > 0
 
-
+    # TODO: improve it
     def test_report_data_populated(self, report_file: Path) -> None:
         """Verify parsed data contains populated essential hardware values."""
         parser = CpuzTxtParser(str(report_file))
@@ -56,12 +70,15 @@ class TestTxtReports:
         has_bios = bool(info['bios']['vendor'] or info['bios']['version'])
         assert has_mb or has_bios, f'Neither motherboard nor BIOS info found in {report_file.name}'
 
-
     def test_cli_execution_no_exception(self, report_file: Path, cli_runner: CliRunner) -> None:
         """Verify CLI execution handles the report file without exceptions."""
         result = cli_runner.invoke(main, [str(report_file), '-f', 'plain', '-o', '-'])
         assert result.exit_code == 0
 
         assert 'Motherboard:' in result.output
+        assert 'BIOS:' in result.output
         assert 'CPU:' in result.output
         assert 'Memory:' in result.output
+        assert 'DDR' in result.output
+        assert 'Graphics:' in result.output
+        assert 'Operating System:' in result.output
