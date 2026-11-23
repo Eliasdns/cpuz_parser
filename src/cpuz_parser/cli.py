@@ -12,7 +12,7 @@ from .features import FEATURE_RICH
 if FEATURE_RICH:
     import rich_click as click
 
-    click.rich_click.USE_MARKDOWN = True
+    click.rich_click.TEXT_MARKUP = 'markdown'
     click.rich_click.SHOW_ARGUMENTS = True
     click.rich_click.GROUP_ARGUMENTS_OPTIONS = True
     click.rich_click.STYLE_OPTIONS_PANEL_BORDER = 'cyan'
