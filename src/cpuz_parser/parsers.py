@@ -101,9 +101,9 @@ class CpuzTxtParser(SystemInfo):
         match = regex_motherboard.search(self.txt_content)
         if match:
             match_motherboard_dict = match.groupdict()
-            self._system_info['motherboard']['vendor'] = match_motherboard_dict['vendor']
-            self._system_info['motherboard']['model'] = match_motherboard_dict['model']
-            # self._system_info['motherboard']['revision'] = match_motherboard_dict['revision']
+            self._system_info['motherboard']['vendor'] = match_motherboard_dict['vendor'].strip()
+            self._system_info['motherboard']['model'] = match_motherboard_dict['model'].strip()
+            # self._system_info['motherboard']['revision'] = match_motherboard_dict['revision'].strip()
 
     def parse_bios(self) -> None:
         regex_bios = re.compile(r"""
@@ -121,9 +121,9 @@ class CpuzTxtParser(SystemInfo):
         match = regex_bios.search(self.txt_content)
         if match:
             match_bios_dict = match.groupdict()
-            self._system_info['bios']['vendor'] = match_bios_dict['vendor']
-            self._system_info['bios']['version'] = match_bios_dict['version']
-            self._system_info['bios']['date'] = match_bios_dict['date']
+            self._system_info['bios']['vendor'] = match_bios_dict['vendor'].strip()
+            self._system_info['bios']['version'] = match_bios_dict['version'].strip()
+            self._system_info['bios']['date'] = match_bios_dict['date'].strip()
 
     def parse_cpu(self) -> None:
         regex_cpu = re.compile(r"""
@@ -133,11 +133,14 @@ class CpuzTxtParser(SystemInfo):
             ^\s+Specification\s+(?P<cpu>.*)$
         """, re.MULTILINE | re.VERBOSE)
 
-        self._system_info['cpu'] = [x.groupdict()['cpu'] for x in regex_cpu.finditer(self.txt_content)]
+        self._system_info['cpu'] = [
+            x.groupdict()['cpu'].strip()
+            for x in regex_cpu.finditer(self.txt_content)
+        ]
 
     def parse_ram(self) -> None:
         regex_ram_size = re.compile(r"""
-            ^Chipset\n-+$ # Header
+            ^Chipset\n-+$  # Header
             (.|\n)*?  # DOTALL não guloso
             ^Memory[ ]Size\s+(?P<size>.*)$
         """, re.MULTILINE | re.VERBOSE)
@@ -147,7 +150,7 @@ class CpuzTxtParser(SystemInfo):
             self._system_info['ram']['size'] = match.groupdict()['size'].replace(' GBytes', 'GB')
 
         regex_ram_slots = re.compile(r"""
-            ^DIMM[ ]\#\s+\d\s*$ # Header secundário
+            ^DIMM[ ]\#\s+\d\s*$  # Header secundário
             (.|\n)*?  # DOTALL não guloso
             ^\s+Memory[ ]type\s+(?P<type>.*)$
             (.|\n)*?  # DOTALL não guloso
@@ -162,10 +165,10 @@ class CpuzTxtParser(SystemInfo):
         for slots in regex_ram_slots.finditer(self.txt_content):
             match_slots_dict = slots.groupdict()
             self._system_info['ram']['slots'].append(self._format_ram_slot({
-                'type': match_slots_dict['type'],
-                'bandwidth': match_slots_dict['bandwidth'],
-                'size':  match_slots_dict['size'],
-                'manufacturer': match_slots_dict['manufacturer'],
+                'type': match_slots_dict['type'].strip(),
+                'bandwidth': match_slots_dict['bandwidth'].strip(),
+                'size':  match_slots_dict['size'].strip(),
+                'manufacturer': match_slots_dict['manufacturer'].strip(),
             }))
 
     # TODO: TypedDict RamSlotDict (dict[str, str | bytes | None])
@@ -182,11 +185,15 @@ class CpuzTxtParser(SystemInfo):
             pass
 
         # Format 'manufacturer'
-        regex_manufacturer = re.compile(r"[ ]?[(]\w+[)]$")
+        regex_manufacturer = re.compile(
+            r"[ ]?[(]\w+[)]$"
+        )
         slot['manufacturer'] = re.sub(regex_manufacturer, '', slot['manufacturer'])
 
         # Format 'bandwidth'
-        regex_bandwidth = re.compile(r"^(PC.|DDR.)-[0-9]+.* [(](?P<bandwidth>[0-9]+) MHz[)]$")
+        regex_bandwidth = re.compile(
+            r"^(PC.|DDR.)-[0-9]+.* [(](?P<bandwidth>[0-9]+) MHz[)]$"
+        )
         match = regex_bandwidth.match(slot['bandwidth'])
         if match:
             try:
@@ -208,7 +215,10 @@ class CpuzTxtParser(SystemInfo):
             ^\s+Name\s+(?P<gpu>.*)$
         """, re.MULTILINE | re.VERBOSE)
 
-        self._system_info['gpu'] = [x.groupdict()['gpu'] for x in regex_gpu.finditer(self.txt_content)]
+        self._system_info['gpu'] = [
+            x.groupdict()['gpu'].strip()
+            for x in regex_gpu.finditer(self.txt_content)
+        ]
 
     def parse_os(self) -> None:
         regex_os = re.compile(r"""
@@ -219,4 +229,4 @@ class CpuzTxtParser(SystemInfo):
         match = regex_os.search(self.txt_content)
         if match:
             # self._system_info['os'] = [ match.groupdict()['os'].replace('  ', ' ').replace('   ', ' ') ]
-            self._system_info['os'] = [ match.groupdict()['os'] ]
+            self._system_info['os'] = [ match.groupdict()['os'].strip() ]
