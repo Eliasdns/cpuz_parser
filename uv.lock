@@ -486,7 +486,7 @@ wheels = [
 
 [[package]]
 name = "cpuz-parser"
-version = "0.1.0a0"
+version = "0.2.0b0"
 source = { editable = "." }
 dependencies = [
     { name = "click" },

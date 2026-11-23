@@ -1,7 +1,7 @@
 [project]
 name = "cpuz_parser"
 description = "Parse CPU-Z TXT report file into a structured object and a human-readable string"
-version = "v0.1.0-alpha"
+version = "v0.2.0-beta"
 requires-python = ">=3.11"
 
 readme = "README.md"
@@ -11,7 +11,7 @@ authors = [
 license = "MIT"
 license-files = ["LICEN[CS]E.*"]
 classifiers = [
-    "Development Status :: 3 - Alpha",
+    "Development Status :: 4 - Beta",
     "License :: OSI Approved :: MIT License",
     "Natural Language :: English",
 
