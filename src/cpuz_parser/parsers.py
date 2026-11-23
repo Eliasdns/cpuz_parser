@@ -66,7 +66,7 @@ class CpuzTxtParser(SystemInfo):
         self,
         txt_file: IO | str | None = None,
         ram_freq_translate: dict[str, str] | None = None,
-        auto_combine_slots: bool = True
+        auto_combine_slots: bool = True,
     ) -> None:
         super().__init__(auto_combine_slots=auto_combine_slots)
 
