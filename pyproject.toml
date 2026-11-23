@@ -173,7 +173,7 @@ addopts = [
     # "-rP",  # extra test summary info: char P
     # # "-rA",  # extra test summary info: char A
     "--tb=short",
-    "-p", "no:warnings",  # "--disable-warnings"
+    # "-p", "no:warnings",  # "--disable-warnings"
 
     # "--pdb", "--pdbcls=IPython.terminal.debugger:TerminalPdb",  # Debug breakpoints
     # "-s",  # Shortcut for --capture=no
