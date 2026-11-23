@@ -130,12 +130,12 @@ class TestCpuzTxtParserSections:
         }
 
     def test_parse_cpu_single(self, section_contents: dict[str, str]) -> None:
-        """Verify a single CPU specification is extracted from a Socket header."""
+        """Verify a single CPU specification is extracted from a Socket sub-header."""
         parser = _parser_from_text(section_contents['cpu'])
         assert parser.system_info['cpu'] == ['DUMMY Processor Model 8-Core']
 
-    def test_parse_cpu_multiple_headers(self) -> None:
-        """Verify multiple CPUs are extracted across both Socket and Processor headers."""
+    def test_parse_cpu_multiple_sockets(self) -> None:
+        """Verify multiple CPUs are extracted across both Socket and Processor sub-headers."""
         snippet = (
             'Socket 0 ID = 0\n'
             '\tSpecification\t\tCPU One\n'
