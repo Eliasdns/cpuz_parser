@@ -18,7 +18,7 @@ if TYPE_CHECKING:
 pytestmark = pytest.mark.unit
 
 FIXTURES_DIR = (Path(__file__).parent / '../fixtures').resolve()
-ALL_TXT_REPORTS_DIR = FIXTURES_DIR / 'cpuz-reports/TXTs'
+ALL_TXT_REPORTS_DIR = FIXTURES_DIR / 'real-cpuz-reports/TXTs'
 # TODO: log/info for the selected 'SAMPLE_REPORT'
 SAMPLE_REPORT = next(ALL_TXT_REPORTS_DIR.glob('*.txt'))
 

@@ -19,7 +19,7 @@ pytestmark = pytest.mark.smoke
 
 
 FIXTURES_DIR = (Path(__file__).parent / '../fixtures').resolve()
-ALL_TXT_REPORTS_DIR = FIXTURES_DIR / 'cpuz-reports/TXTs'
+ALL_TXT_REPORTS_DIR = FIXTURES_DIR / 'real-cpuz-reports/TXTs'
 REPORT_TXT_FILES = sorted(ALL_TXT_REPORTS_DIR.glob('*.txt'))
 
 
