@@ -195,7 +195,7 @@ class CpuzTxtParser(SystemInfo):
                     # ram_freqs_single_mul2_to_friendly_dict
                     slot['bandwidth'] = self.ram_freq_translate[ slot['bandwidth'] ]
                 slot['bandwidth'] += 'MHz'
-            except ValueError:
+            except ValueError:  # pragma: no cover
                 pass
 
         return slot
