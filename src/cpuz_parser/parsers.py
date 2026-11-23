@@ -177,7 +177,7 @@ class CpuzTxtParser(SystemInfo):
             slot['size'] = str(float( slot['size'].replace(' MBytes', '') ) / 1024)
             slot['size'] = slot['size'].replace('.0', '') if slot['size'].endswith('.0') else slot['size']
             slot['size'] += 'GB'
-        # TODO: investigar o por que desse try-except e removê-lo
+        # TODO: investigar o por que desse try-except (seria pelo casting com float?)
         except ValueError:
             pass
 
@@ -195,6 +195,7 @@ class CpuzTxtParser(SystemInfo):
                     # ram_freqs_single_mul2_to_friendly_dict
                     slot['bandwidth'] = self.ram_freq_translate[ slot['bandwidth'] ]
                 slot['bandwidth'] += 'MHz'
+            # TODO: investigar o por que desse try-except (seria pelo casting com int?)
             except ValueError:  # pragma: no cover
                 pass
 
