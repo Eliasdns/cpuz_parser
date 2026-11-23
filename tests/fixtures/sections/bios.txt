@@ -1,0 +1,4 @@
+DMI BIOS
+	vendor			DUMMY_BIOS_CORP
+	version			V1.0.0
+	date			01/01/2025
