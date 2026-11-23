@@ -11,6 +11,8 @@ from .exporters import to_plain
 
 class SystemInfo(ABC):
     def __init__(self) -> None:
+        # TODO: combine_ram_slots: bool
+        # TODO: count_ram_slots: bool
         self._system_info: dict[str, Any] = {}
         self._system_info['motherboard'] = {}
         self._system_info['motherboard']['vendor'] = ''
