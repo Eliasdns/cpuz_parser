@@ -258,14 +258,14 @@ ignore_missing_imports = true
 [tool.ruff]
 line-length = 120
 exclude = [
-    "__pycache__",
-    ".git",
-    "venv",
-    ".venv",
-    ".nox",
-    ".hypothesis",
-    ".vscode",
-    "/*_cache",
+    '__pycache__',
+    '.git',
+    'venv',
+    '.venv',
+    '.nox',
+    '.hypothesis',
+    '.vscode',
+    '/*_cache',
 ]
 
 # [tool.ruff.lint]
