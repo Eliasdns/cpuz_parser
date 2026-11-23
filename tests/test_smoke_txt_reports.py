@@ -18,8 +18,8 @@ if TYPE_CHECKING:
 pytestmark = pytest.mark.smoke
 
 
-FIXTURES_DIR = (Path(__file__).parent / '../fixtures').resolve()
-ALL_TXT_REPORTS_DIR = FIXTURES_DIR / 'real-cpuz-reports/TXTs'
+PRIV_FIXTURES_DIR = (Path(__file__).parent / '../private-fixtures').resolve()
+ALL_TXT_REPORTS_DIR = PRIV_FIXTURES_DIR / 'real-cpuz-reports/TXTs'
 REPORT_TXT_FILES = sorted(ALL_TXT_REPORTS_DIR.glob('*.txt'))
 
 

@@ -1,3 +1,3 @@
 # CPU-Z fixture files must preserve CRLF line endings and CP1252 (Windows-1252) encoding
-/fixtures/**/*.txt text eol=crlf working-tree-encoding=cp1252
+/private-fixtures/**/*.txt text eol=crlf working-tree-encoding=cp1252
 /tests/fixtures/**/*.txt text eol=crlf working-tree-encoding=cp1252

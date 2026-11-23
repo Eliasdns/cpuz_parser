@@ -39,7 +39,7 @@ jobs:
           mise install
           mise run install_deps:tests
 
-      # FIXME: download the 'fixtures/real-cpuz-reports/TXTs'
+      # FIXME: download the 'private-fixtures/real-cpuz-reports/TXTs'
       - name: Run Tests
         env:
           UNIT_TESTS: ${{ github.event_name == 'pull_request' || inputs.unit }}
