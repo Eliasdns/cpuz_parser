@@ -27,26 +27,28 @@ class SystemInfo(ABC):
         self._system_info['gpu'] = []
         self._system_info['os'] = []
 
-    @property
-    def system_info(self) -> dict:
-        si = deepcopy(self._system_info)
-        si['ram']['slots'] = self.count_slots( si['ram']['slots'] )
-        return si
-
     def update_system_info(self, *args, **kwargs) -> None:
         return self._system_info.update(*args, **kwargs)
 
     def __str__(self) -> str:
         return to_plain(self)
 
+    @property
+    def system_info(self) -> dict:
+        si = deepcopy(self._system_info)
+        # TODO: group and count slots only if requested
+        si['ram']['slots'] = self.count_slots( si['ram']['slots'] )
+        return si
+
     @staticmethod
-    def count_slots(slots: list) -> list:
-        slots_counter = Counter([ frozenset(x.items()) for x in slots ])
-        slots = []
-        for key, value in slots_counter.items():
-            slot_values = dict(key)
-            slots.append(
-                f"{value}x "
+    def count_slots(old_slots) -> list:
+        # TODO: old_slots: list[RamSlotDict]
+        slots_counter = Counter([ frozenset(x.items()) for x in old_slots ])
+        new_slots = []
+        for key, amount in slots_counter.items():
+            slot_values = dict(key)  # RamSlotDict
+            new_slots.append(
+                f"{amount}x "
                 + ' '.join([
                     slot_values['type'],
                     slot_values['bandwidth'],
@@ -54,7 +56,7 @@ class SystemInfo(ABC):
                     slot_values['manufacturer'],
                 ])
             )
-        return sorted(slots)
+        return sorted(new_slots)
 
 
 class CpuzTxtParser(SystemInfo):
@@ -164,8 +166,8 @@ class CpuzTxtParser(SystemInfo):
                 'manufacturer': match_slots_dict['manufacturer'],
             }))
 
-    # TODO: TypedDict para RamSlot (improve type hint)
-    # TODO: e definir também um TypedDict para `.system_info` e `._system_info`
+    # TODO: TypedDict RamSlotDict (dict[str, str | bytes | None])
+    # TODO: e definir também um TypedDict (ou dataclass) para `.system_info` e `._system_info`
     # Format 'bandwidth', 'size' and 'manufacturer' fields
     def _format_ram_slot(self, slot: dict) -> dict:
         # Format 'size'
