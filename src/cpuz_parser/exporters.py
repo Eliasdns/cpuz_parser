@@ -14,7 +14,7 @@ from cpuz_parser.features import (
 
 
 if TYPE_CHECKING:
-    from cpuz_parser.parser import SystemInfo
+    from cpuz_parser.parsers import SystemInfo
 
 
 def to_plain(si: SystemInfo) -> str:

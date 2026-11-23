@@ -21,7 +21,7 @@ else:
     import click  # type: ignore[no-redef]
 
 from cpuz_parser import exporters
-from cpuz_parser.parser import CpuzTxtParser
+from cpuz_parser.parsers import CpuzTxtParser
 
 
 FORMAT_EXTENSION_MAP = {
