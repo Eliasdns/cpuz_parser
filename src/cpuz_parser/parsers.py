@@ -65,7 +65,7 @@ class CpuzTxtParser(SystemInfo):
     def __init__(
         self,
         txt_file: IO | str | None = None,
-        ram_freq_translate: dict | None = None,
+        ram_freq_translate: dict[str, str] | None = None,
     ) -> None:
         super().__init__()
 
