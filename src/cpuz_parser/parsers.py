@@ -166,7 +166,7 @@ class CpuzTxtParser(SystemInfo):
 
     def parse_gpu(self) -> None:
         regex_gpu = re.compile(r"""
-            ^Display[ ]adapter[ ]\d\s*$  # Header secundário
+            ^Display[ ]adapter[ ]\d[ ]?([(][a-z]+[)])?\s*$  # Header secundário
             (.|\n)*?  # DOTALL não guloso
             ^\s+Name\s+(?P<gpu>.*)$
         """, re.MULTILINE | re.VERBOSE)
