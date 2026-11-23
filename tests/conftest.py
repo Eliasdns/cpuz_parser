@@ -1,4 +1,5 @@
 from pathlib import Path
+from typing import Any
 
 import pytest
 from click.testing import CliRunner
@@ -44,3 +45,32 @@ def section_contents(fixtures_dir: Path) -> dict[str, str]:
 def sample_parser(sample_report_path: Path) -> CpuzTxtParser:
     """Initialized CpuzTxtParser parsed from the synthetic sample report."""
     return CpuzTxtParser(str(sample_report_path))
+
+
+@pytest.fixture
+def empty_system_info() -> dict[str, Any]:
+    """Fresh default empty structure expected from an unpopulated SystemInfo."""
+    return {
+        'motherboard': {'vendor': '', 'model': ''},
+        'bios': {'vendor': '', 'version': '', 'date': ''},
+        'cpu': [],
+        'ram': {'size': '', 'slots': []},
+        'gpu': [],
+        'os': [],
+    }
+
+
+@pytest.fixture
+def expected_sample_system_info() -> dict[str, Any]:
+    """Fresh expected system_info dictionary parsed from sample_report.txt."""
+    return {
+        'motherboard': {'vendor': 'DUMMY Vendor Corp', 'model': 'DUMMY Mainboard Model'},
+        'bios': {'vendor': 'DUMMY_BIOS_CORP', 'version': 'V1.0.0', 'date': '01/01/2025'},
+        'cpu': ['DUMMY Processor Model 8-Core'],
+        'ram': {
+            'size': '16GB',
+            'slots': ['2x DDR4 2666MHz 8GB DUMMY_MEM_CORP'],
+        },
+        'gpu': ['DUMMY Graphics Adapter'],
+        'os': ['DUMMY Operating System 64-bit'],
+    }
