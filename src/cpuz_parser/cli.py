@@ -6,7 +6,7 @@ import json
 import sys
 from pathlib import Path
 
-from cpuz_parser.features import FEATURE_RICH
+from .features import FEATURE_RICH
 
 
 if FEATURE_RICH:
@@ -20,8 +20,8 @@ if FEATURE_RICH:
 else:
     import click  # type: ignore[no-redef]
 
-from cpuz_parser import exporters
-from cpuz_parser.parsers import CpuzTxtParser
+from . import exporters
+from .parsers import CpuzTxtParser
 
 
 FORMAT_EXTENSION_MAP = {

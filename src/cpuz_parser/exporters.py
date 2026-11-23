@@ -6,7 +6,7 @@ import json
 import xml.etree.ElementTree as ET
 from typing import TYPE_CHECKING, Any
 
-from cpuz_parser.features import (
+from .features import (
     require_rich_feature,
     require_toml_feature,
     require_yaml_feature,
@@ -14,7 +14,7 @@ from cpuz_parser.features import (
 
 
 if TYPE_CHECKING:
-    from cpuz_parser.parsers import SystemInfo
+    from .parsers import SystemInfo
 
 
 def to_plain(si: SystemInfo) -> str:
