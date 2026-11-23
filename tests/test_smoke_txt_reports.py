@@ -41,44 +41,64 @@ class TestTxtReports:
         if report_file is None:
             pytest.fail(
                 f"No real CPU-Z report (.txt) was found in '{ALL_TXT_REPORTS_DIR}'. "
-                "These fixtures are required to run the Smoke Tests."
+                'These fixtures are required to run the Smoke Tests.'
             )
 
     def test_parse_report_no_exception(self, report_file: Path) -> None:
-        """Verify CpuzTxtParser instantiates and parses without raising any exception."""
+        """Verify CpuzTxtParser instantiates, parses without exception, and extracts core hardware data."""
         parser = CpuzTxtParser(str(report_file))
-
         info = parser.system_info
-        assert isinstance(info, dict)
-        for expected_key in ('motherboard', 'bios', 'cpu', 'ram', 'gpu', 'os'):
-            assert expected_key in info, f"Missing key '{expected_key}' in {report_file.name}"
 
+        # Verify all essential hardware categories are extracted and populated
+        assert \
+            info['motherboard']['vendor'] and info['motherboard']['model'],\
+            f'Motherboard vendor or model are empty in {report_file.name}'
+        assert \
+            info['bios']['vendor'] and info['bios']['version'] and info['bios']['date'],\
+            f'BIOS vendor, version or date are empty in {report_file.name}'
+        assert \
+            len(info['cpu']),\
+            f'No CPU entries parsed in {report_file.name}'
+        assert \
+            all(info['cpu']),\
+            f'Are a blank string parsed as a CPU entry in {report_file.name}'
+        assert \
+            info['ram']['size'],\
+            f'RAM size is empty in {report_file.name}'
+        assert \
+            len(info['ram']['slots']),\
+            f'No RAM slots parsed in {report_file.name}'
+        assert \
+            all(info['ram']['slots']),\
+            f'Are a blank string parsed as a RAM slot in {report_file.name}'
+        assert \
+            len(info['gpu']),\
+            f'No GPU entries parsed in {report_file.name}'
+        assert \
+            all(info['gpu']),\
+            f'Are a blank string parsed as a GPU in {report_file.name}'
+        assert \
+            len(info['os']) and all(info['gpu']),\
+            f'No OS entries parsed in {report_file.name}'
+
+        # Verify plain-text rendering anchors to actual parsed hardware data
         info_str = str(parser)
-        assert isinstance(info_str, str)
-        assert len(info_str) > 0
-
-    # TODO: improve it
-    def test_report_data_populated(self, report_file: Path) -> None:
-        """Verify parsed data contains populated essential hardware values."""
-        parser = CpuzTxtParser(str(report_file))
-        info = parser.system_info
-
-        assert len(info['cpu']) > 0, f'No CPU entries found in {report_file.name}'
-        assert info['ram']['size'], f'RAM size is empty in {report_file.name}'
-
-        has_mb = bool(info['motherboard']['vendor'] or info['motherboard']['model'])
-        has_bios = bool(info['bios']['vendor'] or info['bios']['version'])
-        assert has_mb or has_bios, f'Neither motherboard nor BIOS info found in {report_file.name}'
+        assert info['cpu'][0] in info_str, f'CPU not found in str(parser) for {report_file.name}'
+        assert info['ram']['size'] in info_str, f'RAM size not found in str(parser) for {report_file.name}'
 
     def test_cli_execution_no_exception(self, report_file: Path, cli_runner: CliRunner) -> None:
         """Verify CLI execution handles the report file without exceptions."""
         result = cli_runner.invoke(main, [str(report_file), '-f', 'plain', '-o', '-'])
-        assert result.exit_code == 0
+        assert result.exit_code == 0, f'CLI failed with exit code {result.exit_code}: {result.output}'
+        assert result.exception is None
 
-        assert 'Motherboard:' in result.output
-        assert 'BIOS:' in result.output
-        assert 'CPU:' in result.output
-        assert 'Memory:' in result.output
-        assert 'DDR' in result.output
-        assert 'Graphics:' in result.output
-        assert 'Operating System:' in result.output
+        expected_sections = (
+            'Motherboard:',
+            'BIOS:',
+            'CPU:',
+            'Memory:', 'DDR',
+            'Graphics:',
+            'Operating System:',
+        )
+        for section in expected_sections:
+            assert section in result.output, f"Missing '{section}' in CLI output for {report_file.name}"
