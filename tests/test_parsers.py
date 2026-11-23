@@ -52,14 +52,14 @@ class TestSystemInfo:
         snapshot['motherboard']['vendor'] = 'Mutated'
         assert info.system_info == empty_system_info
 
-    def test_count_slots_aggregates_and_sorts(self) -> None:
-        """Verify count_slots groups identical RAM modules and returns them sorted."""
+    def test_combine_ram_slots_aggregates_and_sorts(self) -> None:
+        """Verify combine_ram_slots groups identical RAM modules and returns them sorted."""
         raw_slots = [
             {'type': 'DDR4', 'bandwidth': '3200MHz', 'size': '8GB', 'manufacturer': 'Corsair'},
             {'type': 'DDR4', 'bandwidth': '2666MHz', 'size': '4GB', 'manufacturer': 'Kingston'},
             {'type': 'DDR4', 'bandwidth': '3200MHz', 'size': '8GB', 'manufacturer': 'Corsair'},
         ]
-        assert SystemInfo.count_slots(raw_slots) == [
+        assert SystemInfo.combine_ram_slots(raw_slots) == [
             '1x DDR4 2666MHz 4GB Kingston',
             '2x DDR4 3200MHz 8GB Corsair',
         ]

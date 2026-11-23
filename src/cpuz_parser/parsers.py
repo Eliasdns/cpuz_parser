@@ -10,9 +10,9 @@ from .exporters import to_plain
 
 
 class SystemInfo(ABC):
-    def __init__(self) -> None:
-        # TODO: combine_ram_slots: bool
-        # TODO: count_ram_slots: bool
+    def __init__(self, auto_combine_slots: bool = True) -> None:
+        self.auto_combine_slots = auto_combine_slots
+
         self._system_info: dict[str, Any] = {}
         self._system_info['motherboard'] = {}
         self._system_info['motherboard']['vendor'] = ''
@@ -38,12 +38,12 @@ class SystemInfo(ABC):
     @property
     def system_info(self) -> dict:
         si = deepcopy(self._system_info)
-        # TODO: group and count slots only if requested
-        si['ram']['slots'] = self.count_slots( si['ram']['slots'] )
+        if self.auto_combine_slots:
+            si['ram']['slots'] = self.combine_ram_slots( si['ram']['slots'] )
         return si
 
     @staticmethod
-    def count_slots(old_slots) -> list:
+    def combine_ram_slots(old_slots) -> list:
         # TODO: old_slots: list[RamSlotDict]
         slots_counter = Counter([ frozenset(x.items()) for x in old_slots ])
         new_slots = []
@@ -66,8 +66,9 @@ class CpuzTxtParser(SystemInfo):
         self,
         txt_file: IO | str | None = None,
         ram_freq_translate: dict[str, str] | None = None,
+        auto_combine_slots: bool = True
     ) -> None:
-        super().__init__()
+        super().__init__(auto_combine_slots=auto_combine_slots)
 
         # ram_freqs_single_mul2_to_friendly_dict
         if ram_freq_translate is not None:
