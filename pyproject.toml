@@ -152,9 +152,6 @@ build-backend = "hatchling.build"
 # $ pytest
 [tool.pytest.ini_options]
 pythonpath = "src"
-DJANGO_SETTINGS_MODULE = "core.settings"
-# https://playwright.dev/python/docs/test-runners#async-fixtures
-# asyncio_default_test_loop_scope = "session"
 testpaths = [
     "src",
     "tests",
