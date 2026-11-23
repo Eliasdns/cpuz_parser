@@ -190,7 +190,7 @@ class TestCpuzTxtParserIsolatedMethods:
 
 
 class TestTransformRamSlot:
-    """Test edge cases and transformations in transform_ram_slot."""
+    """Test edge cases and transformations in `_format_ram_slot`."""
 
     @pytest.mark.parametrize(
         ('raw_size', 'expected_size'),
@@ -210,7 +210,7 @@ class TestTransformRamSlot:
             'size': raw_size,
             'manufacturer': 'DUMMY_MFG',
         }
-        transformed = parser.transform_ram_slot(slot)
+        transformed = parser._format_ram_slot(slot)
         assert transformed['size'] == expected_size
 
     @pytest.mark.parametrize(
@@ -229,7 +229,7 @@ class TestTransformRamSlot:
             'size': '8192 MBytes',
             'manufacturer': raw_mfg,
         }
-        transformed = parser.transform_ram_slot(slot)
+        transformed = parser._format_ram_slot(slot)
         assert transformed['manufacturer'] == expected_mfg
 
     def test_bandwidth_regex_matched_and_translated(self) -> None:
@@ -240,7 +240,7 @@ class TestTransformRamSlot:
             'size': '8192 MBytes',
             'manufacturer': 'DUMMY',
         }
-        transformed = parser.transform_ram_slot(slot)
+        transformed = parser._format_ram_slot(slot)
         assert transformed['bandwidth'] == 'DDR4-2666-CUSTOMMHz'
 
     def test_bandwidth_regex_matched_without_translation(self) -> None:
@@ -251,7 +251,7 @@ class TestTransformRamSlot:
             'size': '8192 MBytes',
             'manufacturer': 'DUMMY',
         }
-        transformed = parser.transform_ram_slot(slot)
+        transformed = parser._format_ram_slot(slot)
         assert transformed['bandwidth'] == '2666MHz'
 
     def test_bandwidth_regex_not_matching(self) -> None:
@@ -262,7 +262,7 @@ class TestTransformRamSlot:
             'size': '8192 MBytes',
             'manufacturer': 'DUMMY',
         }
-        transformed = parser.transform_ram_slot(slot)
+        transformed = parser._format_ram_slot(slot)
         assert transformed['bandwidth'] == 'Unknown Bandwidth Format'
 
     def test_bandwidth_value_error_handled(self) -> None:
@@ -274,5 +274,5 @@ class TestTransformRamSlot:
             'manufacturer': 'DUMMY',
         }
         with patch('builtins.int', side_effect=ValueError):
-            transformed = parser.transform_ram_slot(slot)
+            transformed = parser._format_ram_slot(slot)
         assert transformed['bandwidth'] == 'DDR4-2666 (1333 MHz)'

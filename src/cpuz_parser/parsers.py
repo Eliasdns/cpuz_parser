@@ -157,12 +157,44 @@ class CpuzTxtParser(SystemInfo):
         self._system_info['ram']['slots'] = []
         for slots in regex_ram_slots.finditer(self.txt_content):
             match_slots_dict = slots.groupdict()
-            self._system_info['ram']['slots'].append(self.transform_ram_slot({
+            self._system_info['ram']['slots'].append(self._format_ram_slot({
                 'type': match_slots_dict['type'],
                 'bandwidth': match_slots_dict['bandwidth'],
                 'size':  match_slots_dict['size'],
                 'manufacturer': match_slots_dict['manufacturer'],
             }))
+
+    # TODO: TypedDict para RamSlot (improve type hint)
+    # TODO: e definir também um TypedDict para `.system_info` e `._system_info`
+    # Format 'bandwidth', 'size' and 'manufacturer' fields
+    def _format_ram_slot(self, slot: dict) -> dict:
+        # Format 'size'
+        try:
+            slot['size'] = str(float( slot['size'].replace(' MBytes', '') ) / 1024)
+            slot['size'] = slot['size'].replace('.0', '') if slot['size'].endswith('.0') else slot['size']
+            slot['size'] += 'GB'
+        # TODO: investigar o por que desse try-except e removê-lo
+        except ValueError:
+            pass
+
+        # Format 'manufacturer'
+        regex_manufacturer = re.compile(r"[ ]?[(]\w+[)]$")
+        slot['manufacturer'] = re.sub(regex_manufacturer, '', slot['manufacturer'])
+
+        # Format 'bandwidth'
+        regex_bandwidth = re.compile(r"^(PC.|DDR.)-[0-9]+.* [(](?P<bandwidth>[0-9]+) MHz[)]$")
+        match = regex_bandwidth.match(slot['bandwidth'])
+        if match:
+            try:
+                slot['bandwidth'] = str(int(match.groupdict()['bandwidth']) * 2)
+                if slot['bandwidth'] in self.ram_freq_translate:
+                    # ram_freqs_single_mul2_to_friendly_dict
+                    slot['bandwidth'] = self.ram_freq_translate[ slot['bandwidth'] ]
+                slot['bandwidth'] += 'MHz'
+            except ValueError:
+                pass
+
+        return slot
 
     def parse_gpu(self) -> None:
         regex_gpu = re.compile(r"""
@@ -183,32 +215,3 @@ class CpuzTxtParser(SystemInfo):
         if match:
             # self._system_info['os'] = [ match.groupdict()['os'].replace('  ', ' ').replace('   ', ' ') ]
             self._system_info['os'] = [ match.groupdict()['os'] ]
-
-    # Transform 'bandwidth', 'size' and 'manufacturer' fields
-    def transform_ram_slot(self, slot: dict) -> dict:
-        # Transform 'size'
-        try:
-            slot['size'] = str(float( slot['size'].replace(' MBytes', '') ) / 1024)
-            slot['size'] = slot['size'].replace('.0', '') if slot['size'].endswith('.0') else slot['size']
-            slot['size'] += 'GB'
-        except ValueError:
-            pass
-
-        # Transform 'manufacturer'
-        regex_manufacturer = re.compile(r"[ ]?[(]\w+[)]$")
-        slot['manufacturer'] = re.sub(regex_manufacturer, '', slot['manufacturer'])
-
-        # Transform 'bandwidth'
-        regex_bandwidth = re.compile(r"^(PC.|DDR.)-[0-9]+.* [(](?P<bandwidth>[0-9]+) MHz[)]$")
-        match = regex_bandwidth.match(slot['bandwidth'])
-        if match:
-            try:
-                slot['bandwidth'] = str(int(match.groupdict()['bandwidth']) * 2)
-                if slot['bandwidth'] in self.ram_freq_translate:
-                    # ram_freqs_single_mul2_to_friendly_dict
-                    slot['bandwidth'] = self.ram_freq_translate[ slot['bandwidth'] ]
-                slot['bandwidth'] += 'MHz'
-            except ValueError:
-                pass
-
-        return slot
