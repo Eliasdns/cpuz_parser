@@ -245,7 +245,7 @@ $RECYCLE.BIN/
 
 config.json
 
-/private-fixtures/real-cpuz-reports/
+/priv_fixtures/
 
 /*.bkp
 /*.bak
