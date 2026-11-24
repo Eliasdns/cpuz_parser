@@ -91,143 +91,150 @@ class CpuzTxtParser(SystemInfo):
             self.parse_os()
 
     def parse_motherboard(self) -> None:
-        regex_motherboard = re.compile(r"""
-            ^DMI[ ]Baseboard\s*$  # Header secundário
-            (.|\n)*?  # DOTALL não guloso
-            ^\s+vendor\s+(?P<vendor>.*)\n
-            ^\s+model\s+(?P<model>.*)\n
-            # ^\s+revision\s+(?P<revision>.*)$
-        """, re.MULTILINE | re.VERBOSE)
-
-        match = regex_motherboard.search(self.txt_content)
+        self._REGEX_MOTHERBOARD = re.compile(
+            r"""
+            ^DMI[ ]Baseboard[ \t]*\n                # Sub-header line
+            (?:[ \t]+[^\n]*\n)*?                    # Any preceding indented lines in this block
+            [ \t]+vendor[ \t]+(?P<vendor>[^\n]*)\n  # Board manufacturer
+            [ \t]+model[ \t]+(?P<model>[^\n]*)      # Board model (works with or without trailing newline)
+            # [ \t]+revision[ \t]+(?P<revision>[^\n]*)  # Board revision
+            """,
+            re.MULTILINE | re.VERBOSE,
+        )
+        match = self._REGEX_MOTHERBOARD.search(self.txt_content)
         if match:
-            match_motherboard_dict = match.groupdict()
-            self._system_info['motherboard']['vendor'] = match_motherboard_dict['vendor'].strip()
-            self._system_info['motherboard']['model'] = match_motherboard_dict['model'].strip()
-            # self._system_info['motherboard']['revision'] = match_motherboard_dict['revision'].strip()
+            self._system_info['motherboard']['vendor'] = match.group('vendor').strip()
+            self._system_info['motherboard']['model'] = match.group('model').strip()
+            # self._system_info['motherboard']['revision'] = match.group('revision').strip()
 
     def parse_bios(self) -> None:
-        regex_bios = re.compile(r"""
-            # ^DMI\n-+$  # Header principal
-            # (?s:.*?)(?!^-+)  # Não funcionando corretamento, ainda dando match caso (^-+) anteceda Header secundário
-            ^DMI[ ]BIOS\s*$  # Header secundário
-            # (?s:.*?)(?!^\S)  # De mesmo modo, não funcionando corretamento
-            # (?s:.*?)  # DOTALL não guloso
-            (.|\n)*?  # DOTALL não guloso
-            ^\s+vendor\s+(?P<vendor>.*)\n
-            ^\s+version\s+(?P<version>.*)\n
-            ^\s+date\s+(?P<date>.*)$
-        """, re.MULTILINE | re.VERBOSE)
-
-        match = regex_bios.search(self.txt_content)
+        self._REGEX_BIOS = re.compile(
+            r"""
+            ^DMI[ ]BIOS[ \t]*\n                       # Sub-header line
+            (?:[ \t]+[^\n]*\n)*?                      # Any preceding indented lines in this block
+            [ \t]+vendor[ \t]+(?P<vendor>[^\n]*)\n    # BIOS vendor
+            [ \t]+version[ \t]+(?P<version>[^\n]*)\n  # BIOS version
+            [ \t]+date[ \t]+(?P<date>[^\n]*)          # BIOS release date
+            """,
+            re.MULTILINE | re.VERBOSE,
+        )
+        match = self._REGEX_BIOS.search(self.txt_content)
         if match:
-            match_bios_dict = match.groupdict()
-            self._system_info['bios']['vendor'] = match_bios_dict['vendor'].strip()
-            self._system_info['bios']['version'] = match_bios_dict['version'].strip()
-            self._system_info['bios']['date'] = match_bios_dict['date'].strip()
+            self._system_info['bios']['vendor'] = match.group('vendor').strip()
+            self._system_info['bios']['version'] = match.group('version').strip()
+            self._system_info['bios']['date'] = match.group('date').strip()
 
     def parse_cpu(self) -> None:
-        regex_cpu = re.compile(r"""
-            ^(Socket|Processor)[ ]\d+\s+ID[ ]=[ ]\d+$  # Header secundário
-            (.|\n)*?  # DOTALL não guloso
-            # ^\s+Name\s+(?P<cpu>.*)$
-            ^\s+Specification\s+(?P<cpu>.*)$
-        """, re.MULTILINE | re.VERBOSE)
-
+        self._REGEX_CPU = re.compile(
+            r"""
+            ^(?:Socket|Processor)[ ]\d+[ \t]+ID[ ]=[ ]\d+[ \t]*\n  # CPU block header (Socket or Processor)
+            (?:[ \t]+[^\n]*\n)*?                                   # Indented fields before Specification
+            [ \t]+Specification[ \t]+(?P<cpu>[^\n]*)               # Full CPU model specification
+            """,
+            re.MULTILINE | re.VERBOSE,
+        )
         self._system_info['cpu'] = [
-            x.groupdict()['cpu'].strip()
-            for x in regex_cpu.finditer(self.txt_content)
+            match.group('cpu').strip()
+            for match in self._REGEX_CPU.finditer(self.txt_content)
         ]
 
     def parse_ram(self) -> None:
-        regex_ram_size = re.compile(r"""
-            ^Chipset\n-+$  # Header
-            (.|\n)*?  # DOTALL não guloso
-            ^Memory[ ]Size\s+(?P<size>.*)$
-        """, re.MULTILINE | re.VERBOSE)
-
-        match = regex_ram_size.search(self.txt_content)
+        self._REGEX_RAM_SIZE = re.compile(
+            r"""
+            ^Chipset\n-+\n                        # Top-level Chipset section header and divider
+            (?:(?!^-+$)[^\n]*\n)*?                # Lines within Chipset (stops at the next ---... divider)
+            ^Memory[ ]Size[ \t]+(?P<size>[^\n]*)  # Total installed memory (e.g., '16 GBytes')
+            """,
+            re.MULTILINE | re.VERBOSE,
+        )
+        match = self._REGEX_RAM_SIZE.search(self.txt_content)
         if match:
-            self._system_info['ram']['size'] = match.groupdict()['size'].replace(' GBytes', 'GB')
+            self._system_info['ram']['size'] = match.group('size').strip().replace(' GBytes', 'GB')
 
-        regex_ram_slots = re.compile(r"""
-            ^DIMM[ ]\#\s+\d\s*$  # Header secundário
-            (.|\n)*?  # DOTALL não guloso
-            ^\s+Memory[ ]type\s+(?P<type>.*)$
-            (.|\n)*?  # DOTALL não guloso
-            ^\s+(Module[ ])?Manufacturer[ ]?[(]ID[)]\s+(?P<manufacturer>.*)$
-            (.|\n)*?  # DOTALL não guloso
-            ^\s+Size\s+(?P<size>.*)$
-            (.|\n)*?  # DOTALL não guloso
-            ^\s+Max[ ]bandwidth\s+(?P<bandwidth>.*)$
-        """, re.MULTILINE | re.VERBOSE)
-
-        self._system_info['ram']['slots'] = []
-        for slots in regex_ram_slots.finditer(self.txt_content):
-            match_slots_dict = slots.groupdict()
-            self._system_info['ram']['slots'].append(self._format_ram_slot({
-                'type': match_slots_dict['type'].strip(),
-                'bandwidth': match_slots_dict['bandwidth'].strip(),
-                'size':  match_slots_dict['size'].strip(),
-                'manufacturer': match_slots_dict['manufacturer'].strip(),
-            }))
+        self._REGEX_RAM_SLOTS = re.compile(
+            r"""
+            ^DIMM[ ]\#[ \t]+\d+[ \t]*\n                       # DIMM slot header (supports 2+ digits)
+            (?:[ \t]+[^\n]*\n)*?                              # Indented lines before Memory type
+            [ \t]+Memory[ ]type[ \t]+(?P<type>[^\n]*)\n       # e.g., DDR3, DDR4, DDR5
+            (?:[ \t]+[^\n]*\n)*?                              # Indented lines before Manufacturer
+            [ \t]+(?:Module[ ])?Manufacturer[ ]?\(ID\)[ \t]+(?P<manufacturer>[^\n]*)\n  # Module/Manufacturer (ID)
+            (?:[ \t]+[^\n]*\n)*?                              # Indented lines before Size
+            [ \t]+Size[ \t]+(?P<size>[^\n]*)\n                # Module size (e.g., '8192 MBytes')
+            (?:[ \t]+[^\n]*\n)*?                              # Indented lines before Max bandwidth
+            [ \t]+Max[ ]bandwidth[ \t]+(?P<bandwidth>[^\n]*)  # Rated speed (e.g., 'DDR4-2666 (1333 MHz)')
+            """,
+            re.MULTILINE | re.VERBOSE,
+        )
+        self._system_info['ram']['slots'] = [
+            self._format_ram_slot({
+                'type': match_slot.group('type').strip(),
+                'bandwidth': match_slot.group('bandwidth').strip(),
+                'size': match_slot.group('size').strip(),
+                'manufacturer': match_slot.group('manufacturer').strip(),
+            })
+            for match_slot in self._REGEX_RAM_SLOTS.finditer(self.txt_content)
+        ]
 
     # TODO: TypedDict RamSlotDict (dict[str, str | bytes | None])
     # TODO: e definir também um TypedDict (ou dataclass) para `.system_info` e `._system_info`
-    # Format 'bandwidth', 'size' and 'manufacturer' fields
     def _format_ram_slot(self, slot: dict) -> dict:
-        # Format 'size'
-        try:
-            slot['size'] = str(float( slot['size'].replace(' MBytes', '') ) / 1024)
-            slot['size'] = slot['size'].replace('.0', '') if slot['size'].endswith('.0') else slot['size']
-            slot['size'] += 'GB'
-        # TODO: investigar o por que desse try-except (seria pelo casting com float?)
-        except ValueError:
-            pass
+        # Format 'size': convert '<integer> MBytes' to '<value>GB'
+        if slot['size'].endswith(' MBytes'):
+            size_mb_str = slot['size'].removesuffix(' MBytes')
+            # isascii() + isdigit() ensures pure ASCII 0-9 (rejecting Unicode digits like '²', negatives, 'inf'/'nan'),
+            # so int(...) is guaranteed safe
+            if size_mb_str.isascii() and size_mb_str.isdigit():
+                size_gb_str = str(int(size_mb_str) / 1024).removesuffix('.0')
+                slot['size'] = f'{size_gb_str}GB'
 
-        # Format 'manufacturer'
-        regex_manufacturer = re.compile(
-            r"[ ]?[(]\w+[)]$"
-        )
-        slot['manufacturer'] = re.sub(regex_manufacturer, '', slot['manufacturer'])
+        # Format 'manufacturer': strip trailing parenthesized JEDEC ID
 
-        # Format 'bandwidth'
-        regex_bandwidth = re.compile(
-            r"^(PC.|DDR.)-[0-9]+.* [(](?P<bandwidth>[0-9]+) MHz[)]$"
+        # Trailing parenthesized JEDEC ID on RAM manufacturer names (e.g., 'Corsair (7F7F)' -> 'Corsair')
+        self._REGEX_RAM_MANUFACTURER = re.compile(
+            r'[ ]?[(]\w+[)]$'
         )
-        match = regex_bandwidth.match(slot['bandwidth'])
-        if match:
-            try:
-                slot['bandwidth'] = str(int(match.groupdict()['bandwidth']) * 2)
-                if slot['bandwidth'] in self.ram_freq_translate:
-                    # ram_freqs_single_mul2_to_friendly_dict
-                    slot['bandwidth'] = self.ram_freq_translate[ slot['bandwidth'] ]
-                slot['bandwidth'] += 'MHz'
-            # TODO: investigar o por que desse try-except (seria pelo casting com int?)
-            except ValueError:  # pragma: no cover
-                pass
+
+        slot['manufacturer'] = self._REGEX_RAM_MANUFACTURER.sub('', slot['manufacturer'])
+
+        # Format 'bandwidth': double single-rate MHz clock (validated as ASCII digits by [0-9]+)
+        # and apply optional friendly frequency mapping
+
+        # Rated RAM bandwidth strings (e.g., 'PC4-21300 (1333 MHz)', 'PC3L-12800 (800 MHz)', 'DDR4-2666 (1333 MHz)').
+        # Captures the single-rate clock in ASCII digits ([0-9]+), so int(...) is guaranteed safe
+        self._REGEX_RAM_BANDWIDTH = re.compile(
+            r'^(?:PC|DDR)\w*-[0-9]+.* [(](?P<bandwidth>[0-9]+) MHz[)]$'
+        )
+
+        match_bandwidth = self._REGEX_RAM_BANDWIDTH.match(slot['bandwidth'])
+        if match_bandwidth:
+            freq = str(int(match_bandwidth.group('bandwidth')) * 2)
+            slot['bandwidth'] = f'{self.ram_freq_translate.get(freq, freq)}MHz'
 
         return slot
 
     def parse_gpu(self) -> None:
-        regex_gpu = re.compile(r"""
-            ^Display[ ]adapter[ ]\d[ ]?([(][a-z]+[)])?\s*$  # Header secundário
-            (.|\n)*?  # DOTALL não guloso
-            ^\s+Name\s+(?P<gpu>.*)$
-        """, re.MULTILINE | re.VERBOSE)
-
+        self._REGEX_GPU = re.compile(
+            r"""
+            ^Display[ ]adapter[ ]\d+(?:[ ]\([a-z]+\))?[ \t]*\n  # Display adapter header (optional '(primary)' suffix)
+            (?:[ \t]+[^\n]*\n)*?                                # Indented fields before Name
+            [ \t]+Name[ \t]+(?P<gpu>[^\n]*)                     # GPU adapter name
+            """,
+            re.MULTILINE | re.VERBOSE,
+        )
         self._system_info['gpu'] = [
-            x.groupdict()['gpu'].strip()
-            for x in regex_gpu.finditer(self.txt_content)
+            match.group('gpu').strip()
+            for match in self._REGEX_GPU.finditer(self.txt_content)
         ]
 
     def parse_os(self) -> None:
-        regex_os = re.compile(r"""
-            ^Windows[ ]Version  # Header secundário
-            \s+(?P<os>.*)$
-        """, re.MULTILINE | re.VERBOSE)
+        # Top-level Windows Version line under the Software section
+        self._REGEX_OS = re.compile(
+            r'^Windows[ ]Version[ \t]+(?P<os>[^\n]*)', re.MULTILINE
+        )
 
-        match = regex_os.search(self.txt_content)
+        match = self._REGEX_OS.search(self.txt_content)
         if match:
-            # self._system_info['os'] = [ match.groupdict()['os'].replace('  ', ' ').replace('   ', ' ') ]
-            self._system_info['os'] = [ match.groupdict()['os'].strip() ]
+            # self._system_info['os'] = [match.group('os').replace('  ', ' ').replace('   ', ' ')]
+            # Keep raw internal spacing (e.g., before '(Build ...)') as reported by CPU-Z;
+            # collapsing spaces like `.replace('  ', ' ')` is intentionally not applied.
+            self._system_info['os'] = [match.group('os').strip()]
