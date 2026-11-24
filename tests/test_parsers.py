@@ -129,7 +129,7 @@ class TestCpuzTxtParserInit:
 
 
 class TestCpuzTxtParserSections:
-    """Test parsing of individual CPU-Z report sections."""
+    """Test parsing of individual CPU-Z TXT report sections and their boundaries."""
 
     def test_parse_motherboard(self, section_contents: dict[str, str]) -> None:
         """Verify DMI Baseboard vendor and model are extracted from the motherboard section."""
@@ -138,6 +138,25 @@ class TestCpuzTxtParserSections:
             'vendor': 'DUMMY Vendor Corp',
             'model': 'DUMMY Mainboard Model',
         }
+
+    def test_parse_motherboard_without_trailing_newline_and_blank_vendor(self) -> None:
+        """Verify DMI Baseboard parses without a trailing newline and does not swallow next line on empty vendor."""
+        snippet = 'DMI Baseboard\n\tvendor\t\t\n\tmodel\t\tDUMMY Board'
+        parser = _parser_from_text(snippet)
+        assert parser.system_info['motherboard'] == {'vendor': '', 'model': 'DUMMY Board'}
+
+    def test_parse_motherboard_does_not_bleed_into_next_dmi_block(self) -> None:
+        """Verify an incomplete DMI Baseboard block does not capture fields from a following DMI block."""
+        snippet = (
+            'DMI Baseboard\n'
+            '\tvendor\t\tDUMMY Vendor\n'
+            '\n'
+            'DMI System Information\n'
+            '\tvendor\t\tOTHER Vendor\n'
+            '\tmodel\t\tOTHER Model\n'
+        )
+        parser = _parser_from_text(snippet)
+        assert parser.system_info['motherboard'] == {'vendor': '', 'model': ''}
 
     def test_parse_bios(self, section_contents: dict[str, str]) -> None:
         """Verify DMI BIOS vendor, version, and date are extracted from the BIOS section."""
@@ -175,6 +194,40 @@ class TestCpuzTxtParserSections:
             ],
         }
 
+    def test_parse_ram_handles_two_digit_dimm_and_short_manufacturer_header(self) -> None:
+        """Verify DIMM indices with 2+ digits, Manufacturer (ID) header, and trailing Memory Size spaces."""
+        snippet = (
+            'Chipset\n'
+            '-----------------------\n'
+            'Memory Size\t\t32 GBytes   \n'
+            '\n'
+            'DIMM #\t\t\t10\n'
+            '\tMemory type\t\tDDR4\n'
+            '\tManufacturer (ID)\tDUMMY_MFG (7F7F)\n'
+            '\tSize\t\t\t16384 MBytes\n'
+            '\tMax bandwidth\t\tDDR4-3200 (1600 MHz)\n'
+        )
+        parser = _parser_from_text(snippet)
+        assert parser.system_info['ram'] == {
+            'size': '32GB',
+            'slots': ['1x DDR4 3200MHz 16GB DUMMY_MFG'],
+        }
+
+    def test_parse_ram_does_not_bleed_across_dimm_blocks(self) -> None:
+        """Verify an incomplete DIMM block does not merge fields from a subsequent DIMM block."""
+        snippet = (
+            'DIMM #\t\t\t0\n'
+            '\tMemory type\t\tDDR3\n'
+            '\n'
+            'DIMM #\t\t\t1\n'
+            '\tMemory type\t\tDDR4\n'
+            '\tModule Manufacturer(ID)\tDUMMY_MFG (7F7F)\n'
+            '\tSize\t\t\t8192 MBytes\n'
+            '\tMax bandwidth\t\tDDR4-2666 (1333 MHz)\n'
+        )
+        parser = _parser_from_text(snippet)
+        assert parser.system_info['ram']['slots'] == ['1x DDR4 2666MHz 8GB DUMMY_MFG']
+
     def test_parse_ram_without_memory_size(self) -> None:
         """Verify a Chipset section lacking Memory Size leaves RAM fields empty."""
         parser = _parser_from_text('Chipset\n-----------------------\nNorthbridge test\n')
@@ -184,6 +237,12 @@ class TestCpuzTxtParserSections:
         """Verify display adapter name is extracted from the GPU section."""
         parser = _parser_from_text(section_contents['gpu'])
         assert parser.system_info['gpu'] == ['DUMMY Graphics Adapter']
+
+    def test_parse_gpu_multi_digit_index_without_primary_suffix(self) -> None:
+        """Verify Display adapter headers with 2+ digits and no '(primary)' suffix are extracted."""
+        snippet = 'Display adapter 10\n\tName\t\tDUMMY Secondary GPU\n'
+        parser = _parser_from_text(snippet)
+        assert parser.system_info['gpu'] == ['DUMMY Secondary GPU']
 
     def test_parse_os(self, section_contents: dict[str, str]) -> None:
         """Verify Windows version string is extracted from the OS section."""
@@ -226,10 +285,13 @@ class TestRamSlotFormatting:
             ('1536 MBytes', '1.5GB'),
             ('512 MBytes', '0.5GB'),
             ('invalid', 'invalid'),
+            ('abc MBytes', 'abc MBytes'),
+            ('8192', '8192'),
+            ('inf MBytes', 'inf MBytes'),
         ],
     )
     def test_formats_slot_size_to_gb(self, raw_size: str, expected_size: str) -> None:
-        """Verify RAM module sizes convert from MBytes to GB or remain unchanged if invalid."""
+        """Verify valid '<integer> MBytes' sizes convert to GB while unrecognized values stay untouched."""
         assert self._parse_single_dimm(size=raw_size) == [f'1x DDR4 2666MHz {expected_size} Corsair']
 
     @pytest.mark.parametrize(
@@ -251,6 +313,8 @@ class TestRamSlotFormatting:
         [
             pytest.param('PC4-21300 (1333 MHz)', None, '2666MHz', id='pc4_no_translation'),
             pytest.param('PC3-10700 (667 MHz)', {'1334': '1333'}, '1333MHz', id='pc3_667mhz_to_1333mhz'),
+            pytest.param('PC3-10700H (667 MHz)', {'1334': '1333'}, '1333MHz', id='pc3h_suffix_667mhz_to_1333mhz'),
+            pytest.param('PC3L-12800 (800 MHz)', None, '1600MHz', id='pc3l_low_voltage_no_translation'),
             pytest.param('DDR4-2132 (1066 MHz)', {'2132': '2133'}, '2133MHz', id='ddr4_1066mhz_to_2133mhz'),
             pytest.param('DDR4-2134 (1067 MHz)', {'2134': '2133'}, '2133MHz', id='ddr4_1067mhz_to_2133mhz'),
             pytest.param('DDR4-2666 (1333 MHz)', {'2132': '2133'}, '2666MHz', id='ddr4_unmapped_frequency'),
