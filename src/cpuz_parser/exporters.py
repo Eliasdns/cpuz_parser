@@ -66,13 +66,20 @@ def to_rich(si: SystemInfo, console: Any = None) -> None:
 
     data = si.system_info
 
-    # Motherboard & BIOS
+    # Motherboard
     mb_lines = [
         f"[bold cyan]Vendor:[/bold cyan] {data['motherboard']['vendor'] or 'N/A'}",
         f"[bold cyan]Model:[/bold cyan]  {data['motherboard']['model'] or 'N/A'}",
-        f"[bold cyan]BIOS:[/bold cyan]   {data['bios']['vendor']} {data['bios']['version']} ({data['bios']['date']})",
     ]
-    console.print(Panel('\n'.join(mb_lines), title='[bold green]Motherboard & BIOS[/bold green]', expand=False))
+    console.print(Panel('\n'.join(mb_lines), title='[bold green]Motherboard[/bold green]', expand=False))
+
+    # BIOS
+    bios_lines = [
+        f"[bold cyan]Vendor:[/bold cyan]  {data['bios']['vendor'] or 'N/A'}",
+        f"[bold cyan]Version:[/bold cyan] {data['bios']['version'] or 'N/A'}",
+        f"[bold cyan]Date:[/bold cyan]    {data['bios']['date'] or 'N/A'}",
+    ]
+    console.print(Panel('\n'.join(bios_lines), title='[bold green]BIOS[/bold green]', expand=False))
 
     # Processor (CPU)
     cpus = data.get('cpu', [])

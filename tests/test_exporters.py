@@ -53,9 +53,11 @@ class TestToRich:
         console = Console(record=True, width=120)
         exporters.to_rich(sample_parser, console=console)
         captured = console.export_text()
-        assert 'Motherboard & BIOS' in captured
+        assert 'Motherboard' in captured
+        assert 'BIOS' in captured
         assert 'Processor (CPU)' in captured
-        assert 'Memory (RAM)' in captured
+        assert 'RAM Memory' in captured
+        assert 'Installed RAM Slots' in captured
         assert 'Graphics (GPU)' in captured
         assert 'Operating System' in captured
 
