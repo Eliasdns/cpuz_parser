@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import json
 import sys
+from dataclasses import dataclass
 from pathlib import Path
 
 from .features import FEATURE_RICH
@@ -34,6 +35,51 @@ FORMAT_EXTENSION_MAP = {
 }
 
 
+@dataclass(frozen=True)
+class CliConfig:
+    """Validated configuration loaded from a JSON config file."""
+
+    ram_freqs_single_mul2_to_friendly: dict[str, str] | None = None
+    auto_combine_slots: bool | None = None
+
+
+def load_config(config_file: Path) -> CliConfig:
+    """Load and validate a JSON configuration file.
+
+    Validates the supported options:
+    - ``ram_freqs_single_mul2_to_friendly``: mapping of ``str`` to ``str``.
+    - ``auto_combine_slots``: strict ``bool``.
+
+    Raises ``click.ClickException`` (exit code 1) if the file is malformed.
+    """
+    try:
+        with open(config_file, 'r', encoding='utf-8') as f:
+            cfg = json.load(f)
+    except json.JSONDecodeError as e:
+        raise click.ClickException(f"Malformed JSON in config file '{config_file}': {e.msg}") from e
+
+    if not isinstance(cfg, dict):
+        raise click.ClickException(f"Config file '{config_file}' must contain a JSON object.")
+
+    ram_freq_translate: dict[str, str] | None = cfg.get('ram_freqs_single_mul2_to_friendly')
+    if 'ram_freqs_single_mul2_to_friendly' in cfg and (
+        not isinstance(ram_freq_translate, dict)
+        or not all(isinstance(k, str) and isinstance(v, str) for k, v in ram_freq_translate.items())
+    ):
+        raise click.ClickException(
+            "Config key 'ram_freqs_single_mul2_to_friendly' must be an object mapping strings to strings."
+        )
+
+    auto_combine_slots: bool | None = cfg.get('auto_combine_slots')
+    if 'auto_combine_slots' in cfg and not isinstance(auto_combine_slots, bool):
+        raise click.ClickException("Config key 'auto_combine_slots' must be a boolean (true/false).")
+
+    return CliConfig(
+        ram_freqs_single_mul2_to_friendly=ram_freq_translate,
+        auto_combine_slots=auto_combine_slots,
+    )
+
+
 @click.command(name='cpuz_parser', context_settings={'help_option_names': ['-h', '--help']})
 @click.argument(
     'report_file',
@@ -46,7 +92,13 @@ FORMAT_EXTENSION_MAP = {
     'config_file',
     type=click.Path(exists=True, dir_okay=False, path_type=Path),
     default=None,
-    help='Path to JSON configuration file with RAM frequency mappings.',
+    help='Path to JSON configuration file (RAM frequency mappings and auto_combine_slots).',
+)
+@click.option(
+    '--auto-combine-slots/--no-auto-combine-slots',
+    'auto_combine_slots',
+    default=None,
+    help='Combine identical RAM slots into grouped counts (default: True, or config file value).',
 )
 @click.option(
     '-f',
@@ -69,25 +121,36 @@ FORMAT_EXTENSION_MAP = {
 def main(
     report_file: str,
     config_file: Path | None,
+    auto_combine_slots: bool | None,
     output_format: str | None,
     output_file: str,
 ) -> int:
     """Parse CPU-Z TXT reports and export structured hardware data."""
-    # Parse configuration strictly if provided; otherwise default to empty dict
-    ram_translate: dict[str, str] = {}
-    if config_file is not None:
-        with open(config_file, 'r', encoding='utf-8') as f:
-            cfg = json.load(f)
-            ram_translate = cfg.get('ram_freqs_single_mul2_to_friendly', {})
+    config = load_config(config_file) if config_file is not None else CliConfig()
+
+    if auto_combine_slots is not None:
+        effective_auto_combine = auto_combine_slots
+    elif config.auto_combine_slots is not None:
+        effective_auto_combine = config.auto_combine_slots
+    else:
+        effective_auto_combine = True
 
     # Instantiate parser from stdin ('-') or file path
     if report_file == '-':
-        parser = CpuzTxtParser(sys.stdin.buffer, ram_freq_translate=ram_translate)
+        parser = CpuzTxtParser(
+            sys.stdin.buffer,
+            ram_freq_translate=config.ram_freqs_single_mul2_to_friendly,
+            auto_combine_slots=effective_auto_combine,
+        )
     else:
         path = Path(report_file)
         if not path.is_file():
             raise click.BadParameter(f"File '{report_file}' does not exist.", param_hint="'REPORT_FILE'")
-        parser = CpuzTxtParser(str(path), ram_freq_translate=ram_translate)
+        parser = CpuzTxtParser(
+            str(path),
+            ram_freq_translate=config.ram_freqs_single_mul2_to_friendly,
+            auto_combine_slots=effective_auto_combine,
+        )
 
     # Deduce output format
     if output_format is None:

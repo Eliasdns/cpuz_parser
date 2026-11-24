@@ -64,6 +64,16 @@ class TestSystemInfo:
             '2x DDR4 3200MHz 8GB Corsair',
         ]
 
+    def test_system_info_with_auto_combine_slots_false(self) -> None:
+        """Verify auto_combine_slots=False preserves individual raw slot dictionaries."""
+        raw_slots = [
+            {'type': 'DDR4', 'bandwidth': '3200MHz', 'size': '8GB', 'manufacturer': 'Corsair'},
+            {'type': 'DDR4', 'bandwidth': '3200MHz', 'size': '8GB', 'manufacturer': 'Corsair'},
+        ]
+        info = SystemInfo(auto_combine_slots=False)
+        info.update_system_info({'ram': {'size': '16GB', 'slots': raw_slots}})
+        assert info.system_info['ram']['slots'] == raw_slots
+
     # test `__str__` `to_plain(self)`
     def test_str_renders_plain_text_summary(self) -> None:
         """Verify str(info) delegates to plain-text formatting with populated fields."""
@@ -107,6 +117,14 @@ class TestCpuzTxtParserInit:
             ram_freq_translate={'2666': '2667'},
         )
         assert parser.system_info['ram']['slots'] == ['2x DDR4 2667MHz 8GB DUMMY_MEM_CORP']
+
+    def test_init_with_auto_combine_slots_false(self, sample_report_path: Path) -> None:
+        """Verify auto_combine_slots=False keeps individual formatted slot dicts."""
+        parser = CpuzTxtParser(str(sample_report_path), auto_combine_slots=False)
+        assert parser.system_info['ram']['slots'] == [
+            {'type': 'DDR4', 'bandwidth': '2666MHz', 'size': '8GB', 'manufacturer': 'DUMMY_MEM_CORP'},
+            {'type': 'DDR4', 'bandwidth': '2666MHz', 'size': '8GB', 'manufacturer': 'DUMMY_MEM_CORP'},
+        ]
 
 
 class TestCpuzTxtParserSections:

@@ -2,6 +2,7 @@
 
 import json
 import xml.etree.ElementTree as ET
+from pathlib import Path
 from unittest.mock import patch
 
 import pytest
@@ -37,6 +38,13 @@ class TestToPlain:
         assert 'Motherboard: \n' in result or 'Motherboard: ' in result
         assert 'CPU: \n' in result or 'CPU: ' in result
 
+    def test_to_plain_uncombined_slots(self, sample_report_path: Path) -> None:
+        parser = CpuzTxtParser(str(sample_report_path), auto_combine_slots=False)
+        result = exporters.to_plain(parser)
+        assert result.count('DDR4 2666MHz 8GB DUMMY_MEM_CORP') == 2
+        assert '2x ' not in result
+        assert '{' not in result
+
 
 class TestToRich:
     """Test Rich rendering."""
@@ -63,6 +71,15 @@ class TestToRich:
         captured = console.export_text()
         assert 'N/A' in captured
         assert 'No detailed memory slots found' in captured
+
+    def test_to_rich_uncombined_slots_multi_column(self, sample_report_path: Path) -> None:
+        parser = CpuzTxtParser(str(sample_report_path), auto_combine_slots=False)
+        console = Console(record=True, width=120)
+        exporters.to_rich(parser, console=console)
+        captured = console.export_text()
+        for header in ('Type', 'Bandwidth', 'Size', 'Manufacturer'):
+            assert header in captured
+        assert captured.count('DUMMY_MEM_CORP') == 2
 
     def test_to_rich_disabled_feature(self, sample_parser: CpuzTxtParser) -> None:
         with patch('cpuz_parser.features.FEATURE_RICH', False), pytest.raises(ImportError, match="Rich visualization requires 'rich'"):

@@ -17,6 +17,18 @@ if TYPE_CHECKING:
     from .parsers import SystemInfo
 
 
+def _format_slot_plain_text(slot: str | dict[str, str]) -> str:
+    """Format a RAM slot entry (either combined string or raw dict) as plain text."""
+    if isinstance(slot, dict):
+        return ' '.join(filter(None, (
+            slot.get('type', ''),
+            slot.get('bandwidth', ''),
+            slot.get('size', ''),
+            slot.get('manufacturer', ''),
+        )))
+    return slot
+
+
 def to_plain(si: SystemInfo) -> str:
     """Serialize system info to human-readable plain text."""
     data = si.system_info
@@ -35,7 +47,7 @@ def to_plain(si: SystemInfo) -> str:
     lines.append(f"CPU: {' + '.join(data['cpu'])}")
     lines.append(f"Memory: {data['ram']['size']}")
     for slot in data['ram']['slots']:
-        lines.append(f'{slot}')
+        lines.append(_format_slot_plain_text(slot))
     lines.append(f"Graphics: {' + '.join(data['gpu'])}")
     lines.append(f"Operating System: {' + '.join(data['os'])}")
 
@@ -77,13 +89,26 @@ def to_rich(si: SystemInfo, console: Any = None) -> None:
         show_header=True,
         header_style='bold magenta',
     )
-    ram_table.add_column('Installed Modules / Slots', style='white')
 
-    if slots:
+    if slots and isinstance(slots[0], dict):
+        ram_table.add_column('Type', style='white')
+        ram_table.add_column('Bandwidth', style='cyan')
+        ram_table.add_column('Size', style='green')
+        ram_table.add_column('Manufacturer', style='white')
         for slot in slots:
-            ram_table.add_row(slot)
+            ram_table.add_row(
+                slot.get('type', '') or 'N/A',
+                slot.get('bandwidth', '') or 'N/A',
+                slot.get('size', '') or 'N/A',
+                slot.get('manufacturer', '') or 'N/A',
+            )
     else:
-        ram_table.add_row('[dim]No detailed memory slots found[/dim]')
+        ram_table.add_column('Installed Modules / Slots', style='white')
+        if slots:
+            for slot in slots:
+                ram_table.add_row(slot)
+        else:
+            ram_table.add_row('[dim]No detailed memory slots found[/dim]')
     console.print(ram_table)
 
     # Graphics (GPU)
