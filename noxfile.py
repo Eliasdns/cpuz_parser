@@ -16,7 +16,4 @@ PYTHON_VERSIONS = ['3.11', '3.12', '3.13', '3.14', '3.15']
 @session(python=PYTHON_VERSIONS, uv_extras=['all'], uv_groups=['tests'])
 def tests(session: nox.Session):
     # session.install('setuptools', 'wheel')
-    if not session.posargs:
-        session.run('pytest')
-    else:
-        session.run('pytest', *session.posargs)
+    session.run('pytest', *session.posargs)
