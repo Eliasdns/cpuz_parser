@@ -1,4 +1,4 @@
-"""Parameterized tests verifying that all real CPU-Z TXT reports parse without error."""
+"""Parameterized smoke tests verifying real CPU-Z TXT reports parse cleanly."""
 
 from __future__ import annotations
 
@@ -37,57 +37,46 @@ class TestTxtReports:
 
     @pytest.fixture(autouse=True)
     def validate_fixtures_exist(self, report_file: Path | None) -> None:
-        """Ensure real report fixtures exist; fail explicitly if missing."""
+        """Ensure real report fixtures exist. And fail explicitly if missing."""
         if report_file is None:
             pytest.fail(
                 f"No real CPU-Z report (.txt) was found in '{ALL_TXT_REPORTS_DIR}'. "
                 'These fixtures are required to run the Smoke Tests.'
             )
 
-    def test_parse_report_no_exception(self, report_file: Path) -> None:
-        """Verify CpuzTxtParser instantiates, parses without exception, and extracts core hardware data."""
+    def test_parse_report_extracts_hardware_info(self, report_file: Path) -> None:
+        """Verify CpuzTxtParser parses without error and populates all core hardware sections."""
         parser = CpuzTxtParser(str(report_file))
         info = parser.system_info
 
-        # Verify all essential hardware categories are extracted and populated
-        assert \
-            info['motherboard']['vendor'] and info['motherboard']['model'],\
-            f'Motherboard vendor or model are empty in {report_file.name}'
-        assert \
-            info['bios']['vendor'] and info['bios']['version'] and info['bios']['date'],\
-            f'BIOS vendor, version or date are empty in {report_file.name}'
-        assert \
-            len(info['cpu']),\
-            f'No CPU entries parsed in {report_file.name}'
-        assert \
-            all(info['cpu']),\
-            f'Are a blank string parsed as a CPU entry in {report_file.name}'
-        assert \
-            info['ram']['size'],\
+        assert info['motherboard']['vendor'] and info['motherboard']['model'], (
+            f'Motherboard vendor or model is empty in {report_file.name}'
+        )
+        assert info['bios']['vendor'] and info['bios']['version'] and info['bios']['date'], (
+            f'BIOS vendor, version or date is empty in {report_file.name}'
+        )
+        assert info['cpu'] and all(info['cpu']), (
+            f'Missing or blank CPU entry in {report_file.name}'
+        )
+        assert info['ram']['size'], (
             f'RAM size is empty in {report_file.name}'
-        assert \
-            len(info['ram']['slots']),\
-            f'No RAM slots parsed in {report_file.name}'
-        assert \
-            all(info['ram']['slots']),\
-            f'Are a blank string parsed as a RAM slot in {report_file.name}'
-        assert \
-            len(info['gpu']),\
-            f'No GPU entries parsed in {report_file.name}'
-        assert \
-            all(info['gpu']),\
-            f'Are a blank string parsed as a GPU in {report_file.name}'
-        assert \
-            len(info['os']) and all(info['gpu']),\
-            f'No OS entries parsed in {report_file.name}'
+        )
+        assert info['ram']['slots'] and all(info['ram']['slots']), (
+            f'Missing or blank RAM slot entry in {report_file.name}'
+        )
+        assert info['gpu'] and all(info['gpu']), (
+            f'Missing or blank GPU entry in {report_file.name}'
+        )
+        assert info['os'] and all(info['os']), (
+            f'Missing or blank OS entry in {report_file.name}'
+        )
 
-        # Verify plain-text rendering anchors to actual parsed hardware data
         info_str = str(parser)
         assert info['cpu'][0] in info_str, f'CPU not found in str(parser) for {report_file.name}'
         assert info['ram']['size'] in info_str, f'RAM size not found in str(parser) for {report_file.name}'
 
-    def test_cli_execution_no_exception(self, report_file: Path, cli_runner: CliRunner) -> None:
-        """Verify CLI execution handles the report file without exceptions."""
+    def test_cli_renders_to_plain(self, report_file: Path, cli_runner: CliRunner) -> None:
+        """Verify CLI execution handles the report file and outputs all plain-text sections."""
         result = cli_runner.invoke(main, [str(report_file), '-f', 'plain', '-o', '-'])
         assert result.exit_code == 0, f'CLI failed with exit code {result.exit_code}: {result.output}'
         assert result.exception is None
