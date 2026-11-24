@@ -3,7 +3,7 @@
 from __future__ import annotations
 
 import json
-import xml.etree.ElementTree as ET
+import xml.etree.ElementTree as ET  # nosec B405  # XML serialization only, no parsing
 from typing import TYPE_CHECKING, Any
 
 from .features import (
