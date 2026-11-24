@@ -92,13 +92,13 @@ def load_config(config_file: Path) -> CliConfig:
     'config_file',
     type=click.Path(exists=True, dir_okay=False, path_type=Path),
     default=None,
-    help='Path to JSON configuration file (RAM frequency mappings and auto_combine_slots).',
+    help='Path to JSON configuration file.',
 )
 @click.option(
     '--auto-combine-slots/--no-auto-combine-slots',
     'auto_combine_slots',
     default=None,
-    help='Combine identical RAM slots into grouped counts (default: True, or config file value).',
+    help='Merge each RAM slot into a single string and count duplicates. Overrides `--config` (default: True).',
 )
 @click.option(
     '-f',
