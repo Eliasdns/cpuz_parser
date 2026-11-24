@@ -528,7 +528,9 @@ ci = [
     { name = "sphinx-copybutton" },
     { name = "types-colorama" },
     { name = "types-pexpect" },
+    { name = "types-psutil" },
     { name = "types-pygments" },
+    { name = "types-pyyaml" },
 ]
 dev = [
     { name = "debugpy" },
@@ -551,7 +553,9 @@ sca = [
     { name = "ruff" },
     { name = "types-colorama" },
     { name = "types-pexpect" },
+    { name = "types-psutil" },
     { name = "types-pygments" },
+    { name = "types-pyyaml" },
 ]
 tests = [
     { name = "coverage" },
@@ -588,7 +592,9 @@ ci = [
     { name = "sphinx-copybutton" },
     { name = "types-colorama" },
     { name = "types-pexpect" },
+    { name = "types-psutil" },
     { name = "types-pygments" },
+    { name = "types-pyyaml" },
 ]
 dev = [
     { name = "debugpy" },
@@ -609,7 +615,9 @@ sca = [
     { name = "ruff" },
     { name = "types-colorama" },
     { name = "types-pexpect" },
+    { name = "types-psutil" },
     { name = "types-pygments" },
+    { name = "types-pyyaml" },
 ]
 tests = [
     { name = "coverage" },
@@ -1901,12 +1909,30 @@ wheels = [
 ]
 
 [[package]]
+name = "types-psutil"
+version = "7.2.2.20261122"
+source = { registry = "https://pypi.org/simple" }
+sdist = { url = "https://files.pythonhosted.org/packages/af/c3/f2b13b3a78628887c407bee49eed3e8bfb5e23e2e8407c31146269226215/types_psutil-7.2.2.20261122.tar.gz", hash = "sha256:30879c88d871c99f4a632cb17826ce8ec55de2c4884ed84e4f8f293b91c6439e", size = 27671, upload-time = "2026-11-22T09:00:03.397Z" }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/78/da/cc4e00f377450ebc69075f10eea90dce14a534e789426367347e1a1a64b2/types_psutil-7.2.2.20261122-py3-none-any.whl", hash = "sha256:ee60d47cddb6ecace68aeb5326bce47fef706a00f728df7ec27dae31d4ed8472", size = 33505, upload-time = "2026-11-22T09:00:02.507Z" },
+]
+
+[[package]]
 name = "types-pygments"
 version = "2.21.0.20261122"
 source = { registry = "https://pypi.org/simple" }
 sdist = { url = "https://files.pythonhosted.org/packages/7e/fb/9133f6bef7a3123462e5604207f6b7f8c3b7dd2c032ef00e983536468b35/types_pygments-2.21.0.20261122.tar.gz", hash = "sha256:05cf2c546f607c89a6ea93b939939a40fe8af277da9084b2d0774e4926002f84", size = 21803, upload-time = "2026-11-22T08:59:56.306Z" }
 wheels = [
     { url = "https://files.pythonhosted.org/packages/f4/6f/a160652e16cdff022009e878dcb8c260be3a29b03b16d53bb7050f39c645/types_pygments-2.21.0.20261122-py3-none-any.whl", hash = "sha256:2f1a2ee6db3c464d344bd5bb591a2faf7e433f1aa8adc7cd3ae8e529f3f2a5f2", size = 29254, upload-time = "2026-11-22T08:59:55.508Z" },
+]
+
+[[package]]
+name = "types-pyyaml"
+version = "6.0.12.20261122"
+source = { registry = "https://pypi.org/simple" }
+sdist = { url = "https://files.pythonhosted.org/packages/3d/fe/e4d32b089d06f3b5d2f3f1909b1cb450ce2e18ea6e2c1863d2b29ad0090e/types_pyyaml-6.0.12.20261122.tar.gz", hash = "sha256:7fa577c893a1db255cbb02320884ffcb97b7a219fe515bec6c5f15d5d3af41ed", size = 19093, upload-time = "2026-11-22T08:57:28.481Z" }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/4c/71/8dc5553ca25c3a4799ce789f8300d2c3933d427585222c431c77450ed60d/types_pyyaml-6.0.12.20261122-py3-none-any.whl", hash = "sha256:689fbbe883b60471166dede9dba6ac0dbdbcf0ea98062d7ec195430f5bbdb009", size = 21356, upload-time = "2026-11-22T08:57:27.509Z" },
 ]
 
 [[package]]
