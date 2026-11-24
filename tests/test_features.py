@@ -1,38 +1,67 @@
-"""Unit tests for feature toggles and requirements validation."""
+"""Unit tests for optional feature toggles and requirement guards."""
 
-from unittest.mock import patch
+from __future__ import annotations
+
+from typing import TYPE_CHECKING
 
 import pytest
 
 from cpuz_parser import features
 
 
+if TYPE_CHECKING:
+    from collections.abc import Callable
+
+
 pytestmark = pytest.mark.unit
 
 
+FEATURE_CASES = [
+    pytest.param(
+        'FEATURE_RICH',
+        features.require_rich_feature,
+        "Rich visualization requires 'rich'",
+        id='rich'
+    ),
+    pytest.param(
+        'FEATURE_YAML',
+        features.require_yaml_feature,
+        'YAML export feature is disabled',
+        id='yaml'
+    ),
+    pytest.param(
+        'FEATURE_TOML',
+        features.require_toml_feature,
+        'TOML export feature is disabled',
+        id='toml'
+    ),
+]
+
+
 class TestFeatures:
-    """Test feature validation helpers."""
+    """Test feature requirement guard helpers."""
 
-    def test_require_rich_feature_success(self) -> None:
-        with patch('cpuz_parser.features.FEATURE_RICH', True):
-            features.require_rich_feature()
+    @pytest.mark.parametrize(('flag_name', 'guard_fn', '_expected_error'), FEATURE_CASES)
+    def test_require_feature_succeeds_when_enabled(
+        self,
+        monkeypatch: pytest.MonkeyPatch,
+        flag_name: str,
+        guard_fn: Callable[[], None],
+        _expected_error: str,
+    ) -> None:
+        """Verify each require_* guard returns cleanly when its feature flag is enabled."""
+        monkeypatch.setattr(features, flag_name, True)
+        guard_fn()
 
-    def test_require_rich_feature_failure(self) -> None:
-        with patch('cpuz_parser.features.FEATURE_RICH', False), pytest.raises(ImportError, match="Rich visualization requires 'rich'"):
-            features.require_rich_feature()
-
-    def test_require_yaml_feature_success(self) -> None:
-        with patch('cpuz_parser.features.FEATURE_YAML', True):
-            features.require_yaml_feature()
-
-    def test_require_yaml_feature_failure(self) -> None:
-        with patch('cpuz_parser.features.FEATURE_YAML', False), pytest.raises(ImportError, match="YAML export feature is disabled"):
-            features.require_yaml_feature()
-
-    def test_require_toml_feature_success(self) -> None:
-        with patch('cpuz_parser.features.FEATURE_TOML', True):
-            features.require_toml_feature()
-
-    def test_require_toml_feature_failure(self) -> None:
-        with patch('cpuz_parser.features.FEATURE_TOML', False), pytest.raises(ImportError, match="TOML export feature is disabled"):
-            features.require_toml_feature()
+    @pytest.mark.parametrize(('flag_name', 'guard_fn', 'expected_error'), FEATURE_CASES)
+    def test_require_feature_raises_import_error_when_disabled(
+        self,
+        monkeypatch: pytest.MonkeyPatch,
+        flag_name: str,
+        guard_fn: Callable[[], None],
+        expected_error: str,
+    ) -> None:
+        """Verify each require_* guard raises ImportError with install guidance when disabled."""
+        monkeypatch.setattr(features, flag_name, False)
+        with pytest.raises(ImportError, match=expected_error):
+            guard_fn()
