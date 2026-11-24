@@ -90,6 +90,10 @@ run_windows = '''if exist .mypy_cache rmdir /s /q .mypy_cache & set "MYPYPATH=sr
 description = "Build the project package."
 run = "uv build"
 
+[tasks.publish]
+description = "Publish the project package."
+run = "uv publish"
+
 [tasks."build_docs:html"]
 alias = "docs"
 description = "Build the project documentation, in HTML."
