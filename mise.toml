@@ -86,6 +86,10 @@ description = "Install packages for types (stub files), using mypy."
 run = "rm -rf .mypy_cache && MYPYPATH=src mypy --install-types --namespace-packages --explicit-package-bases ."
 run_windows = '''if exist .mypy_cache rmdir /s /q .mypy_cache & set "MYPYPATH=src" & uv run mypy --install-types --namespace-packages --explicit-package-bases .'''
 
+[tasks.build]
+description = "Build the project package."
+run = "uv build"
+
 [tasks."build_docs:html"]
 alias = "docs"
 description = "Build the project documentation, in HTML."
