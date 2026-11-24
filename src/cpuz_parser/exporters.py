@@ -85,7 +85,7 @@ def to_rich(si: SystemInfo, console: Any = None) -> None:
     slots = ram_info.get('slots', [])
 
     ram_table = Table(
-        title=f'Memory (RAM) — Total Detected: {total_size}',
+        title=f'RAM Memory — Total Detected: {total_size}',
         show_header=True,
         header_style='bold magenta',
     )
@@ -103,7 +103,7 @@ def to_rich(si: SystemInfo, console: Any = None) -> None:
                 slot.get('manufacturer', '') or 'N/A',
             )
     else:
-        ram_table.add_column('Installed Modules / Slots', style='white')
+        ram_table.add_column('Installed RAM Slots', style='white')
         if slots:
             for slot in slots:
                 ram_table.add_row(slot)
@@ -119,7 +119,7 @@ def to_rich(si: SystemInfo, console: Any = None) -> None:
     # Operating System
     os_info = data.get('os', [])
     os_text = '\n'.join(os_info) if os_info else 'N/A'
-    console.print(Panel(os_text, title='[bold green]Operating System[/bold green]', expand=False))
+    console.print(Panel(os_text, title='[bold green]Operating System (OS)[/bold green]', expand=False))
 
 
 def to_json(si: SystemInfo, indent: int = 2) -> str:
