@@ -69,10 +69,15 @@ dev = [
     "ipython",
     "ipdb",
     "debugpy",
+
     "pytest-watcher",  # Automatically rerun your tests on file modifications
+
     # Watch a Sphinx directory and rebuild the documentation when a change is detected.
     # Also includes a hot-reload web server
     "sphinx-autobuild",
+
+    "build",
+    "twine",
 ]
 
 # https://docs.astral.sh/uv/concepts/projects/dependencies/#dependency-groups
