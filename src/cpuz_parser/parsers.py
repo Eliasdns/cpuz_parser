@@ -39,18 +39,18 @@ class SystemInfo(ABC):
     def system_info(self) -> dict:
         si = deepcopy(self._system_info)
         if self.auto_combine_slots:
-            si['ram']['slots'] = self.combine_ram_slots( si['ram']['slots'] )
+            si['ram']['slots'] = self.combine_ram_slots(si['ram']['slots'])
         return si
 
     @staticmethod
     def combine_ram_slots(old_slots) -> list:
         # TODO: old_slots: list[RamSlotDict]
-        slots_counter = Counter([ frozenset(x.items()) for x in old_slots ])
+        slots_counter = Counter([frozenset(x.items()) for x in old_slots])
         new_slots = []
         for key, amount in slots_counter.items():
             slot_values = dict(key)  # RamSlotDict
             new_slots.append(
-                f"{amount}x "
+                f'{amount}x '
                 + ' '.join([
                     slot_values['type'],
                     slot_values['bandwidth'],
