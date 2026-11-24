@@ -118,13 +118,14 @@ class TestCpuzTxtParserInit:
         )
         assert parser.system_info['ram']['slots'] == ['2x DDR4 2667MHz 8GB DUMMY_MEM_CORP']
 
-    def test_init_with_auto_combine_slots_false(self, sample_report_path: Path) -> None:
+    def test_init_with_auto_combine_slots_false(
+        self,
+        sample_report_path: Path,
+        expected_uncombined_sample_slots: list[dict[str, str]],
+    ) -> None:
         """Verify auto_combine_slots=False keeps individual formatted slot dicts."""
         parser = CpuzTxtParser(str(sample_report_path), auto_combine_slots=False)
-        assert parser.system_info['ram']['slots'] == [
-            {'type': 'DDR4', 'bandwidth': '2666MHz', 'size': '8GB', 'manufacturer': 'DUMMY_MEM_CORP'},
-            {'type': 'DDR4', 'bandwidth': '2666MHz', 'size': '8GB', 'manufacturer': 'DUMMY_MEM_CORP'},
-        ]
+        assert parser.system_info['ram']['slots'] == expected_uncombined_sample_slots
 
 
 class TestCpuzTxtParserSections:

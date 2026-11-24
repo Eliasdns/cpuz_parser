@@ -231,17 +231,12 @@ class TestToToml:
     def test_serializes_uncombined_ram_slots_as_toml_tables(
         self,
         uncombined_sample_parser: CpuzTxtParser,
+        expected_uncombined_sample_slots: list[dict[str, str]],
     ) -> None:
         """Verify uncombined RAM slot dicts serialize as valid TOML array-of-tables entries."""
         toml_str = exporters.to_toml(uncombined_sample_parser)
         parsed = tomllib.loads(toml_str)
-        expected_slot = {
-            'type': 'DDR4',
-            'bandwidth': '2666MHz',
-            'size': '8GB',
-            'manufacturer': 'DUMMY_MEM_CORP',
-        }
-        assert parsed['ram']['slots'] == [expected_slot, expected_slot]
+        assert parsed['ram']['slots'] == expected_uncombined_sample_slots
 
     def test_raises_import_error_when_toml_feature_disabled(
         self,

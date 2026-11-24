@@ -26,13 +26,6 @@ if TYPE_CHECKING:
 pytestmark = pytest.mark.unit
 
 
-@pytest.fixture
-def uncombined_sample_slots() -> list[dict[str, str]]:
-    """Fresh uncombined RAM slot dictionaries expected from sample_report.txt."""
-    slot = {'type': 'DDR4', 'bandwidth': '2666MHz', 'size': '8GB', 'manufacturer': 'DUMMY_MEM_CORP'}
-    return [slot.copy(), slot.copy()]
-
-
 def _write_config(
     directory: Path,
     content: str | dict[str, Any],
@@ -217,7 +210,7 @@ class TestCliAutoCombineSlots:
         sample_report_path: Path,
         tmp_path: Path,
         expected_sample_system_info: dict[str, Any],
-        uncombined_sample_slots: list[dict[str, str]],
+        expected_uncombined_sample_slots: list[dict[str, str]],
         cli_flags: list[str],
         config_data: dict[str, Any] | None,
         expect_combined: bool,
@@ -232,7 +225,9 @@ class TestCliAutoCombineSlots:
         result = cli_runner.invoke(main, args)
         assert result.exit_code == 0
         data = json.loads(out_file.read_text(encoding='utf-8'))
-        expected_slots = expected_sample_system_info['ram']['slots'] if expect_combined else uncombined_sample_slots
+        expected_slots = (
+            expected_sample_system_info['ram']['slots'] if expect_combined else expected_uncombined_sample_slots
+        )
         assert data['ram']['slots'] == expected_slots
 
     def test_stdin_respects_no_auto_combine_slots(
@@ -240,7 +235,7 @@ class TestCliAutoCombineSlots:
         cli_runner: CliRunner,
         sample_report_content: str,
         tmp_path: Path,
-        uncombined_sample_slots: list[dict[str, str]],
+        expected_uncombined_sample_slots: list[dict[str, str]],
     ) -> None:
         """Verify reading from stdin forwards --no-auto-combine-slots to the parser."""
         out_file = tmp_path / 'stdin_out.json'
@@ -251,7 +246,7 @@ class TestCliAutoCombineSlots:
         )
         assert result.exit_code == 0
         data = json.loads(out_file.read_text(encoding='utf-8'))
-        assert data['ram']['slots'] == uncombined_sample_slots
+        assert data['ram']['slots'] == expected_uncombined_sample_slots
 
 
 class TestCliInputAndOutput:

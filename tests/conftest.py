@@ -1,3 +1,5 @@
+"""Shared pytest fixtures for the cpuz_parser test suite."""
+
 from pathlib import Path
 from typing import Any
 
@@ -74,3 +76,10 @@ def expected_sample_system_info() -> dict[str, Any]:
         'gpu': ['DUMMY Graphics Adapter'],
         'os': ['DUMMY Operating System 64-bit'],
     }
+
+
+@pytest.fixture
+def expected_uncombined_sample_slots() -> list[dict[str, str]]:
+    """Fresh uncombined RAM slot dictionaries expected from sample_report.txt."""
+    slot = {'type': 'DDR4', 'bandwidth': '2666MHz', 'size': '8GB', 'manufacturer': 'DUMMY_MEM_CORP'}
+    return [slot.copy(), slot.copy()]
