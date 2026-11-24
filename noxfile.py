@@ -8,9 +8,9 @@ nox.options.reuse_existing_virtualenvs = True
 
 # nox -l
 # nox -v -s "tests-3.12(rich='15.0')"
-# nox -v --parallel 5 --allow-parallel -p 3.12 3.14
+# nox -v --parallel 6 --allow-parallel -p 3.12 3.14
 
-PYTHON_VERSIONS = ['3.11', '3.12', '3.13', '3.14', '3.15']
+PYTHON_VERSIONS = ['3.11', '3.12', '3.13', '3.14', '3.15', 'pypy3.11']
 
 
 @session(python=PYTHON_VERSIONS, uv_extras=['all'], uv_groups=['tests'])
@@ -29,6 +29,9 @@ def lint(session: nox.Session):
 
 @session(python=PYTHON_VERSIONS, uv_extras=['all'], uv_groups=['sca', 'tests'])
 def typecheck(session: nox.Session):
+    if isinstance(session.python, str) and session.python.startswith('pypy'):
+        session.skip('Running mypy on PyPy is not supported yet')
+
     if not session.posargs:
         session.run('mypy', '.')
     else:

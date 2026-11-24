@@ -49,7 +49,7 @@ run = "mise run test -s"
 alias = "nox"
 description = "Run nox tests session."
 # XXX: --parallel/-j are experimental for now
-run = "nox -j 5 --allow-parallel -v -s tests"
+run = "nox -j 6 --allow-parallel -v -s tests"
 
 [tasks.coverage]
 alias = "cov"
