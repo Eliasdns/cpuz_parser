@@ -23,8 +23,6 @@ jobs:
   tests:
     name: Run Tests
     runs-on: ubuntu-latest
-    env:
-      HAS_PRIV_FIXTURES_SECRETS: ${{ secrets.PRIV_FIXTURES_REPO_PAT != '' && secrets.PRIV_FIXTURES_PASSWORD != '' }}
     steps:
       - name: Checkout Code
         uses: actions/checkout@v7
@@ -42,7 +40,7 @@ jobs:
           mise run install_deps:tests
 
       - name: Checkout Private Fixtures
-        if: ${{ env.HAS_PRIV_FIXTURES_SECRETS == 'true' }}
+        if: inputs.smoke
         uses: actions/checkout@v4
         with:
           repository: Eliasdns/cpuz_parser-priv_fixtures
@@ -52,7 +50,7 @@ jobs:
           lfs: true
 
       - name: Decrypt and Extract Private Fixtures
-        if: ${{ env.HAS_PRIV_FIXTURES_SECRETS == 'true' }}
+        if: inputs.smoke
         env:
           PRIV_FIXTURES_PASSWORD: ${{ secrets.PRIV_FIXTURES_PASSWORD }}
         run: |
