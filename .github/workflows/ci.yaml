@@ -61,7 +61,24 @@ jobs:
         run: |
           mise run seccheck
 
-      # FIXME: download the 'priv_fixtures/real-cpuz-reports/TXTs'
+      - name: Checkout Private Fixtures
+        if: ${{ secrets.PRIV_FIXTURES_REPO_PAT != '' && secrets.PRIV_FIXTURES_PASSWORD != '' }}
+        uses: actions/checkout@v4
+        with:
+          repository: Eliasdns/cpuz_parser-priv_fixtures
+          token: ${{ secrets.PRIV_FIXTURES_REPO_PAT }}
+          ref: priv_fixtures
+          path: .priv_fixtures-repo
+          lfs: true
+
+      - name: Decrypt and Extract Private Fixtures
+        if: ${{ secrets.PRIV_FIXTURES_REPO_PAT != '' && secrets.PRIV_FIXTURES_PASSWORD != '' }}
+        env:
+          PRIV_FIXTURES_PASSWORD: ${{ secrets.PRIV_FIXTURES_PASSWORD }}
+        run: |
+          mise run priv_fixtures:unpack
+          rm -rf .priv_fixtures-repo
+
       - name: Run nox tests Session
         if: ${{ github.event_name != 'pull_request' && inputs.nox_tests }}
         run: |
