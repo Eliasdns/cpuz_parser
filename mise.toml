@@ -24,15 +24,15 @@ run = "uv sync --all-extras --all-groups"
 
 [tasks.install_deps]
 description = "Install project dependencies."
-run = "uv sync --frozen --no-install-project --no-dev"
+run = "uv sync --frozen --no-dev"
 
 [tasks."install_deps:ci"]
 description = "Install project dependencies, for CI."
-run = "uv sync --frozen --no-install-project --no-dev --group ci"
+run = "uv sync --frozen --no-dev --extra all --group ci"
 
 [tasks."install_deps:tests"]
 description = "Install project dependencies, for automatic tests."
-run = "uv sync --frozen --no-install-project --no-dev --group tests"
+run = "uv sync --frozen --no-dev --extra all --group tests"
 
 [tasks.test]
 description = "Run tests."
