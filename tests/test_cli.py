@@ -60,13 +60,20 @@ class TestCliGeneral:
         self,
         cli_runner: CliRunner,
         tmp_path: Path,
+        monkeypatch: pytest.MonkeyPatch,
     ) -> None:
         """Verify passing a missing report path exits with code 2 and a clear error."""
         missing_path = tmp_path / 'nonexistent_report.txt'
-        result = cli_runner.invoke(main, [str(missing_path)])
+        monkeypatch.chdir(tmp_path)
+        result = cli_runner.invoke(main, [missing_path.name])
+        normalized_output = ' '.join(
+            part
+            for line in click.unstyle(result.output).splitlines()
+            if (part := line.strip(' │'))
+        )
         assert result.exit_code == 2
-        assert missing_path.name in result.output
-        assert 'does not exist' in result.output
+        assert missing_path.name in normalized_output
+        assert 'does not exist' in normalized_output
 
     def test_module_entrypoint_invokes_main_only_when_run_as_script(self) -> None:
         """Verify python -m cpuz_parser calls main() only under __main__."""
