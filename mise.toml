@@ -96,7 +96,9 @@ run = "uv publish"
 
 [tasks."priv_fixtures:pack"]
 description = "Pack and encrypt TXTs fixtures into priv_fixtures-cpuz_reports-txts.tar.gz.gpg"
+
 run = '''
+set -e
 TAR_FILE="priv_fixtures-cpuz_reports-txts.tar.gz"
 GPG_FILE="priv_fixtures-cpuz_reports-txts.tar.gz.gpg"
 
@@ -110,24 +112,32 @@ fi
 
 rm -f "$TAR_FILE"
 '''
+
 run_windows = '''
-set "TAR_FILE=priv_fixtures-cpuz_reports-txts.tar.gz"
-set "GPG_FILE=priv_fixtures-cpuz_reports-txts.tar.gz.gpg"
+#!/usr/bin/env powershell
+$ErrorActionPreference = 'Stop'
 
-tar -czf %TAR_FILE% -C priv_fixtures/real-cpuz-reports TXTs
+$TAR_FILE = 'priv_fixtures-cpuz_reports-txts.tar.gz'
+$GPG_FILE = 'priv_fixtures-cpuz_reports-txts.tar.gz.gpg'
 
-if defined PRIV_FIXTURES_PASSWORD (
-    echo %PRIV_FIXTURES_PASSWORD%| gpg --batch --yes --passphrase-fd 0 --symmetric --cipher-algo AES256 --output %GPG_FILE% %TAR_FILE%
-) else (
-    gpg --symmetric --cipher-algo AES256 --output %GPG_FILE% %TAR_FILE%
-)
+tar -czf $TAR_FILE -C priv_fixtures/real-cpuz-reports TXTs
+if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
 
-del /f /q %TAR_FILE%
+if ($env:PRIV_FIXTURES_PASSWORD) {
+    $env:PRIV_FIXTURES_PASSWORD | gpg --batch --yes --passphrase-fd 0 --symmetric --cipher-algo AES256 --output $GPG_FILE $TAR_FILE
+} else {
+    gpg --symmetric --cipher-algo AES256 --output $GPG_FILE $TAR_FILE
+}
+if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+
+Remove-Item -Force -ErrorAction SilentlyContinue $TAR_FILE
 '''
 
 [tasks."priv_fixtures:unpack"]
 description = "Decrypt and unpack priv_fixtures archive into priv_fixtures/real-cpuz-reports/TXTs"
+
 run = '''
+set -e
 GPG_FILE="priv_fixtures-cpuz_reports-txts.tar.gz.gpg"
 [ -f ".priv_fixtures-repo/$GPG_FILE" ] && GPG_FILE=".priv_fixtures-repo/$GPG_FILE"
 TAR_FILE="priv_fixtures-cpuz_reports-txts.tar.gz"
@@ -143,21 +153,29 @@ tar -xzf "$TAR_FILE" -C priv_fixtures/real-cpuz-reports
 
 rm -f "$TAR_FILE"
 '''
+
 run_windows = '''
-set "GPG_FILE=priv_fixtures-cpuz_reports-txts.tar.gz.gpg"
-if exist ".priv_fixtures-repo\%GPG_FILE%" set "GPG_FILE=.priv_fixtures-repo\%GPG_FILE%"
-set "TAR_FILE=priv_fixtures-cpuz_reports-txts.tar.gz"
+#!/usr/bin/env powershell
+$ErrorActionPreference = 'Stop'
 
-if defined PRIV_FIXTURES_PASSWORD (
-    echo %PRIV_FIXTURES_PASSWORD%| gpg --quiet --batch --yes --passphrase-fd 0 --decrypt --output %TAR_FILE% %GPG_FILE%
-) else (
-    gpg --quiet --decrypt --output %TAR_FILE% %GPG_FILE%
-)
+$GPG_FILE = 'priv_fixtures-cpuz_reports-txts.tar.gz.gpg'
+if (Test-Path ".priv_fixtures-repo\$GPG_FILE") {
+    $GPG_FILE = ".priv_fixtures-repo\$GPG_FILE"
+}
+$TAR_FILE = 'priv_fixtures-cpuz_reports-txts.tar.gz'
 
-if not exist "priv_fixtures\real-cpuz-reports" mkdir "priv_fixtures\real-cpuz-reports"
-tar -xzf %TAR_FILE% -C priv_fixtures/real-cpuz-reports
+if ($env:PRIV_FIXTURES_PASSWORD) {
+    $env:PRIV_FIXTURES_PASSWORD | gpg --quiet --batch --yes --passphrase-fd 0 --decrypt --output $TAR_FILE $GPG_FILE
+} else {
+    gpg --quiet --decrypt --output $TAR_FILE $GPG_FILE
+}
+if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
 
-del /f /q %TAR_FILE%
+New-Item -ItemType Directory -Force -Path 'priv_fixtures\real-cpuz-reports' | Out-Null
+tar -xzf $TAR_FILE -C priv_fixtures/real-cpuz-reports
+if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+
+Remove-Item -Force -ErrorAction SilentlyContinue $TAR_FILE
 '''
 
 [tasks."build_docs:html"]
