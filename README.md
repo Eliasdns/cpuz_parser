@@ -45,12 +45,12 @@ pipx install "cpuz_parser[all]"
 
 ### Optional dependencies (extras)
 
-| Extra | Packages Installed | Unlocks |
-| :--- | :--- | :--- |
+| Extra  | Packages Installed   | Unlocks                                                                                       |
+|:-------|:---------------------|:----------------------------------------------------------------------------------------------|
 | `rich` | `rich`, `rich-click` | Rich panels/tables (terminal and plain-file export), highlighted JSON stdout, styled CLI help |
-| `yaml` | `pyyaml` | YAML export (`-f yaml`, `.yaml`/`.yml`, `exporters.to_yaml`) |
-| `toml` | `tomli-w` | TOML export (`-f toml`, `.toml`, `exporters.to_toml`) |
-| `all` | All of the above | Every output format and Rich UI |
+| `yaml` | `pyyaml`             | YAML export (`-f yaml`, `.yaml`/`.yml`, `exporters.to_yaml`)                                  |
+| `toml` | `tomli-w`            | TOML export (`-f toml`, `.toml`, `exporters.to_toml`)                                         |
+| `all`  | All of the above     | Every output format and Rich UI                                                               |
 
 Install one or more extras as needed (quotes avoid shell expansion issues in `zsh`/PowerShell):
 
@@ -97,15 +97,15 @@ cat report.txt | cpuz_parser - -f json
 
 ### CLI Options
 
-| Option | Description |
-| :--- | :--- |
-| `REPORT_FILE` | Path to the CPU-Z `.txt` report, or `-` to read from `stdin` *(required)*. |
-| `-c`, `--config FILE` | Path to a JSON configuration file. |
-| `--auto-combine-slots` / `--no-auto-combine-slots` | Merge identical RAM slots into counted strings or keep individual slot entries. Overrides `--config` *(default: `True`)*. |
-| `-f`, `--format [plain\|rich\|json\|yaml\|toml\|xml]` | Output format (case-insensitive). Defaults to extension mapping for files, or `rich`/`plain` for stdout. |
-| `-o`, `--output PATH` | Destination file path, or `-` to print to stdout *(default: `-`)*. |
-| `--version` | Show the installed version and exit. |
-| `-h`, `--help` | Show CLI help and exit. |
+| Option                                                | Description                                                                                                               |
+|:------------------------------------------------------|:--------------------------------------------------------------------------------------------------------------------------|
+| `REPORT_FILE`                                         | Path to the CPU-Z `.txt` report, or `-` to read from `stdin` *(required)*.                                                |
+| `-c`, `--config FILE`                                 | Path to a JSON configuration file.                                                                                        |
+| `--auto-combine-slots` / `--no-auto-combine-slots`    | Merge identical RAM slots into counted strings or keep individual slot entries. Overrides `--config` *(default: `True`)*. |
+| `-f`, `--format [plain\|rich\|json\|yaml\|toml\|xml]` | Output format (case-insensitive). Defaults to extension mapping for files, or `rich`/`plain` for stdout.                  |
+| `-o`, `--output PATH`                                 | Destination file path, or `-` to print to stdout *(default: `-`)*.                                                        |
+| `--version`                                           | Show the installed version and exit.                                                                                      |
+| `-h`, `--help`                                        | Show CLI help and exit.                                                                                                   |
 
 > **Note:** When `-f rich` is used with a file destination (`-o hardware_rich.txt`), Rich panels and tables are written to the file without ANSI color/control sequences so the resulting `.txt` file stays clean and portable.
 
@@ -142,11 +142,11 @@ Both keys are optional and strictly validated; malformed JSON or invalid value t
 
 By default (`auto_combine_slots=True`), identical RAM modules are merged into a single string prefixed with their count (`<count>x <type> <bandwidth> <size> <manufacturer>`). Disabling it (`auto_combine_slots=False` or `--no-auto-combine-slots`) preserves every installed slot as an individual structured dictionary.
 
-| Format | `auto_combine_slots=True` *(default)* | `auto_combine_slots=False` |
-| :--- | :--- | :--- |
-| **Python / JSON / YAML / TOML / XML** | List of counted summary strings | List of structured slot dicts (`type`, `bandwidth`, `size`, `manufacturer`) |
-| **Plain Text** | One counted line per unique module (`2x DDR4 2666MHz 8GB Acme Memory`) | One line per installed module without count prefix |
-| **Rich** | Single-column table (`Installed RAM Slots`) | 4-column table (`Type`, `Bandwidth`, `Size`, `Manufacturer`) |
+| Format                                | `auto_combine_slots=True` *(default)*                                  | `auto_combine_slots=False`                                                  |
+|:--------------------------------------|:-----------------------------------------------------------------------|:----------------------------------------------------------------------------|
+| **Python / JSON / YAML / TOML / XML** | List of counted summary strings                                        | List of structured slot dicts (`type`, `bandwidth`, `size`, `manufacturer`) |
+| **Plain Text**                        | One counted line per unique module (`2x DDR4 2666MHz 8GB Acme Memory`) | One line per installed module without count prefix                          |
+| **Rich**                              | Single-column table (`Installed RAM Slots`)                            | 4-column table (`Type`, `Bandwidth`, `Size`, `Manufacturer`)                |
 
 ### Structured comparison (JSON / `parser.system_info['ram']`)
 
