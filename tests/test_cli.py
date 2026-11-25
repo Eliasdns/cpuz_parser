@@ -356,17 +356,22 @@ class TestCliInputAndOutput:
             passed_parser = mock_to_rich.call_args.args[0]
             assert passed_parser.system_info == expected_sample_system_info
 
-    def test_export_rich_to_file_writes_plain_text(
+    def test_export_rich_to_file_renders_rich_layout_without_ansi(
         self,
         cli_runner: CliRunner,
         sample_report_path: Path,
         tmp_path: Path,
     ) -> None:
-        """Verify -f rich targeting a file falls back to writing plain text."""
+        """Verify -f rich targeting a file writes Rich panels/tables without ANSI control codes."""
         out_file = tmp_path / 'report.rich.txt'
         result = cli_runner.invoke(main, [str(sample_report_path), '-f', 'rich', '-o', str(out_file)])
         assert result.exit_code == 0
-        assert 'Motherboard: DUMMY Vendor Corp DUMMY Mainboard Model' in out_file.read_text(encoding='utf-8')
+        content = out_file.read_text(encoding='utf-8')
+        assert '\x1b' not in content
+        assert 'Motherboard' in content
+        assert 'Installed RAM Slots' in content
+        assert 'DUMMY Vendor Corp' in content
+        assert '2x DDR4 2666MHz 8GB DUMMY_MEM_CORP' in content
 
     def test_export_json_to_stdout_with_rich_uses_console_print_json(
         self,
@@ -428,17 +433,26 @@ class TestCliFallbacksAndErrors:
         assert f'Report successfully exported to: {out_file}' in result.output
 
     @pytest.mark.parametrize(
-        ('format_name', 'feature_flag', 'expected_error'),
+        ('format_name', 'feature_flag', 'output_target', 'expected_error'),
         [
+            pytest.param(
+                'rich',
+                'FEATURE_RICH',
+                'rich.txt',
+                "Rich visualization requires 'rich' and 'rich-click'",
+                id='missing_rich_to_file',
+            ),
             pytest.param(
                 'yaml',
                 'FEATURE_YAML',
+                '-',
                 "YAML export feature is disabled because 'pyyaml' is not installed",
                 id='missing_yaml',
             ),
             pytest.param(
                 'toml',
                 'FEATURE_TOML',
+                '-',
                 "TOML export feature is disabled because 'tomli-w' is not installed",
                 id='missing_toml',
             ),
@@ -448,14 +462,17 @@ class TestCliFallbacksAndErrors:
         self,
         cli_runner: CliRunner,
         sample_report_path: Path,
+        tmp_path: Path,
         monkeypatch: pytest.MonkeyPatch,
         format_name: str,
         feature_flag: str,
+        output_target: str,
         expected_error: str,
     ) -> None:
         """Verify missing optional exporter dependencies exit with code 2 and installation hints."""
         monkeypatch.setattr(f'cpuz_parser.features.{feature_flag}', False)
-        result = cli_runner.invoke(main, [str(sample_report_path), '-f', format_name, '-o', '-'])
+        out_arg = output_target if output_target == '-' else str(tmp_path / output_target)
+        result = cli_runner.invoke(main, [str(sample_report_path), '-f', format_name, '-o', out_arg])
         assert result.exit_code == 2
         assert expected_error in result.output
 

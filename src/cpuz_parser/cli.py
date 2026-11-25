@@ -2,12 +2,13 @@
 
 from __future__ import annotations
 
+import io
 import json
 import sys
 from dataclasses import dataclass
 from pathlib import Path
 
-from .features import FEATURE_RICH
+from .features import FEATURE_RICH, require_rich_feature
 
 
 if FEATURE_RICH:
@@ -165,11 +166,16 @@ def main(
     try:
         match output_format:
             case 'rich':
-                # TODO: caso '-o -' e '-f rich', tentar imprimir no arquivo mesmo?
                 if output_file == '-':
                     exporters.to_rich(parser)
                     return 0
-                content = exporters.to_plain(parser)
+                else:
+                    require_rich_feature()
+                    from rich.console import Console
+
+                    buf = io.StringIO()
+                    exporters.to_rich(parser, console=Console(file=buf, no_color=True, width=120))
+                    content = buf.getvalue()
             case 'plain':
                 content = exporters.to_plain(parser)
             case 'json':
