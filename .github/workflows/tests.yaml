@@ -8,11 +8,11 @@ on:
         required: false
         type: boolean
         default: true
-      slow:
-        description: 'Run slow tests?'
-        required: false
-        type: boolean
-        default: true
+      # slow:
+      #   description: 'Run slow tests?'
+      #   required: false
+      #   type: boolean
+      #   default: true
       smoke:
         description: 'Run smoke tests?'
         required: false
@@ -60,13 +60,13 @@ jobs:
       - name: Run Tests
         env:
           UNIT_TESTS: ${{ github.event_name == 'pull_request' || inputs.unit }}
-          SLOW_TESTS: ${{ github.event_name == 'pull_request' || inputs.slow }}
+          # SLOW_TESTS: ${{ github.event_name == 'pull_request' || inputs.slow }}
           SMOKE_TESTS: ${{ github.event_name == 'pull_request' || inputs.smoke }}
         run: |
           set -e
           markers=()
           [[ "$UNIT_TESTS" == false ]] && markers+=("not unit")
-          [[ "$SLOW_TESTS" == false ]] && markers+=("not slow")
+          # [[ "$SLOW_TESTS" == false ]] && markers+=("not slow")
           [[ "$SMOKE_TESTS" == false ]] && markers+=("not smoke")
           if ((${#markers[@]})); then
             IFS=':'
