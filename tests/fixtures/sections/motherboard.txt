@@ -1,0 +1,3 @@
+DMI Baseboard
+	vendor			DUMMY Vendor Corp
+	model			DUMMY Mainboard Model

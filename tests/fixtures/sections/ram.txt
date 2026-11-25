@@ -1,0 +1,23 @@
+Chipset
+-------------------------------------------------------------------------
+Memory Size			16 GBytes
+
+
+
+Memory SPD
+-------------------------------------------------------------------------
+
+DIMM #				1
+	Memory type		DDR4
+	Module Manufacturer(ID)	DUMMY_MEM_CORP (FFFF00000000000000000000000000)
+	SDRAM Manufacturer (ID)	DUMMY_MEM_CORP_B (FF0000000000000000000000000000)
+	Size			8192 MBytes
+	Max bandwidth		DDR4-3200 (1600 MHz)
+
+
+DIMM #				2
+	Memory type		DDR4
+	Module Manufacturer(ID)	DUMMY_MEM_CORP (FFFF00000000000000000000000000)
+	SDRAM Manufacturer (ID)	DUMMY_MEM_CORP_B (FF0000000000000000000000000000)
+	Size			8192 MBytes
+	Max bandwidth		DDR4-2666 (1333 MHz)

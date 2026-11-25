@@ -30,6 +30,10 @@ run = "uv sync --frozen --no-install-project --no-dev"
 description = "Install project dependencies, for CI."
 run = "uv sync --frozen --no-install-project --no-dev --group ci"
 
+[tasks."install_deps:tests"]
+description = "Install project dependencies, for automatic tests."
+run = "uv sync --frozen --no-install-project --no-dev --group tests"
+
 [tasks.test]
 description = "Run tests."
 # To run tests in parallel (pytest-xdist): pytest -n auto
@@ -45,7 +49,7 @@ run = "mise run test -s"
 alias = "nox"
 description = "Run nox tests session."
 # XXX: --parallel/-j are experimental for now
-run = "nox -j 5 --allow-parallel -v -s tests"
+run = "nox -j 6 --allow-parallel -v -s tests"
 
 [tasks.coverage]
 alias = "cov"
@@ -81,6 +85,98 @@ depends = [
 description = "Install packages for types (stub files), using mypy."
 run = "rm -rf .mypy_cache && MYPYPATH=src mypy --install-types --namespace-packages --explicit-package-bases ."
 run_windows = '''if exist .mypy_cache rmdir /s /q .mypy_cache & set "MYPYPATH=src" & uv run mypy --install-types --namespace-packages --explicit-package-bases .'''
+
+[tasks.build]
+description = "Build the project package."
+run = "uv build"
+
+[tasks.publish]
+description = "Publish the project package."
+run = "uv publish"
+
+[tasks."priv_fixtures:pack"]
+description = "Pack and encrypt TXTs fixtures into priv_fixtures-cpuz_reports-txts.tar.gz.gpg"
+
+run = '''
+set -e
+TAR_FILE="priv_fixtures-cpuz_reports-txts.tar.gz"
+GPG_FILE="priv_fixtures-cpuz_reports-txts.tar.gz.gpg"
+
+tar -czf "$TAR_FILE" -C priv_fixtures/real-cpuz-reports TXTs
+
+if [ -n "${PRIV_FIXTURES_PASSWORD:-}" ]; then
+    printf '%s\n' "$PRIV_FIXTURES_PASSWORD" | gpg --batch --yes --passphrase-fd 0 --symmetric --cipher-algo AES256 --output "$GPG_FILE" "$TAR_FILE"
+else
+    gpg --symmetric --cipher-algo AES256 --output "$GPG_FILE" "$TAR_FILE"
+fi
+
+rm -f "$TAR_FILE"
+'''
+
+run_windows = '''
+#!/usr/bin/env powershell
+$ErrorActionPreference = 'Stop'
+
+$TAR_FILE = 'priv_fixtures-cpuz_reports-txts.tar.gz'
+$GPG_FILE = 'priv_fixtures-cpuz_reports-txts.tar.gz.gpg'
+
+tar -czf $TAR_FILE -C priv_fixtures/real-cpuz-reports TXTs
+if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+
+if ($env:PRIV_FIXTURES_PASSWORD) {
+    $env:PRIV_FIXTURES_PASSWORD | gpg --batch --yes --passphrase-fd 0 --symmetric --cipher-algo AES256 --output $GPG_FILE $TAR_FILE
+} else {
+    gpg --symmetric --cipher-algo AES256 --output $GPG_FILE $TAR_FILE
+}
+if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+
+Remove-Item -Force -ErrorAction SilentlyContinue $TAR_FILE
+'''
+
+[tasks."priv_fixtures:unpack"]
+description = "Decrypt and unpack priv_fixtures archive into priv_fixtures/real-cpuz-reports/TXTs"
+
+run = '''
+set -e
+GPG_FILE="priv_fixtures-cpuz_reports-txts.tar.gz.gpg"
+[ -f ".priv_fixtures-repo/$GPG_FILE" ] && GPG_FILE=".priv_fixtures-repo/$GPG_FILE"
+TAR_FILE="priv_fixtures-cpuz_reports-txts.tar.gz"
+
+if [ -n "${PRIV_FIXTURES_PASSWORD:-}" ]; then
+    printf '%s\n' "$PRIV_FIXTURES_PASSWORD" | gpg --quiet --batch --yes --passphrase-fd 0 --decrypt --output "$TAR_FILE" "$GPG_FILE"
+else
+    gpg --quiet --decrypt --output "$TAR_FILE" "$GPG_FILE"
+fi
+
+mkdir -p priv_fixtures/real-cpuz-reports
+tar -xzf "$TAR_FILE" -C priv_fixtures/real-cpuz-reports
+
+rm -f "$TAR_FILE"
+'''
+
+run_windows = '''
+#!/usr/bin/env powershell
+$ErrorActionPreference = 'Stop'
+
+$GPG_FILE = 'priv_fixtures-cpuz_reports-txts.tar.gz.gpg'
+if (Test-Path ".priv_fixtures-repo\$GPG_FILE") {
+    $GPG_FILE = ".priv_fixtures-repo\$GPG_FILE"
+}
+$TAR_FILE = 'priv_fixtures-cpuz_reports-txts.tar.gz'
+
+if ($env:PRIV_FIXTURES_PASSWORD) {
+    $env:PRIV_FIXTURES_PASSWORD | gpg --quiet --batch --yes --passphrase-fd 0 --decrypt --output $TAR_FILE $GPG_FILE
+} else {
+    gpg --quiet --decrypt --output $TAR_FILE $GPG_FILE
+}
+if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+
+New-Item -ItemType Directory -Force -Path 'priv_fixtures\real-cpuz-reports' | Out-Null
+tar -xzf $TAR_FILE -C priv_fixtures/real-cpuz-reports
+if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+
+Remove-Item -Force -ErrorAction SilentlyContinue $TAR_FILE
+'''
 
 [tasks."build_docs:html"]
 alias = "docs"

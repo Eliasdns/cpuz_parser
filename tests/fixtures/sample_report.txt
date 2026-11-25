@@ -1,0 +1,52 @@
+CPU-Z TXT Report
+-------------------------------------------------------------------------
+
+Processors
+-------------------------------------------------------------------------
+
+Socket 0 ID = 0
+	Number of cores		8 (max 8)
+	Number of threads	16 (max 16)
+	Specification		DUMMY Processor Model 8-Core
+
+Chipset
+-------------------------------------------------------------------------
+
+Memory Size			16 GBytes
+
+DMI
+-------------------------------------------------------------------------
+
+DMI BIOS
+	vendor			DUMMY_BIOS_CORP
+	version			V1.0.0
+	date			01/01/2025
+
+DMI Baseboard
+	vendor			DUMMY Vendor Corp
+	model			DUMMY Mainboard Model
+
+Display
+-------------------------------------------------------------------------
+
+Display adapter 0
+	Name			DUMMY Graphics Adapter
+
+Software
+-------------------------------------------------------------------------
+
+Windows Version			DUMMY Operating System 64-bit
+
+DIMM #				0
+	Memory type		DDR4
+	Module Manufacturer(ID)	DUMMY_MEM_CORP (FFFF00000000000000000000000000)
+	SDRAM Manufacturer (ID)	DUMMY_MEM_CORP_B (FF0000000000000000000000000000)
+	Size			8192 MBytes
+	Max bandwidth		DDR4-2666 (1333 MHz)
+
+DIMM #				1
+	Memory type		DDR4
+	Module Manufacturer(ID)	DUMMY_MEM_CORP (FFFF00000000000000000000000000)
+	SDRAM Manufacturer (ID)	DUMMY_MEM_CORP_B (FF0000000000000000000000000000)
+	Size			8192 MBytes
+	Max bandwidth		DDR4-2666 (1333 MHz)

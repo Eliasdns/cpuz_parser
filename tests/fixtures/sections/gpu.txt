@@ -1,0 +1,2 @@
+Display adapter 0 (primary)
+	Name			DUMMY Graphics Adapter

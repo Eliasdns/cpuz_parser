@@ -1,0 +1,2 @@
+Socket 0 ID = 0
+	Specification		DUMMY Processor Model 8-Core

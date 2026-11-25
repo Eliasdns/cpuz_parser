@@ -1,7 +1,7 @@
 [project]
 name = "cpuz_parser"
 description = "Parse CPU-Z TXT report file into a structured object and a human-readable string"
-version = "v0.1.0-alpha"
+version = "v1.1.0"
 requires-python = ">=3.11"
 
 readme = "README.md"
@@ -11,12 +11,21 @@ authors = [
 license = "MIT"
 license-files = ["LICEN[CS]E.*"]
 classifiers = [
-    "Development Status :: 3 - Alpha",
+    # "Development Status :: 4 - Beta",
+    "Development Status :: 5 - Production/Stable",
     "License :: OSI Approved :: MIT License",
     "Natural Language :: English",
 
     "Operating System :: OS Independent",
     "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3 :: Only",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Programming Language :: Python :: 3.13",
+    "Programming Language :: Python :: 3.14",
+    "Programming Language :: Python :: 3.15",
+    "Programming Language :: Python :: Implementation :: CPython",
+    "Programming Language :: Python :: Implementation :: PyPy",
     "Typing :: Typed",
 
     "Environment :: Console",
@@ -48,6 +57,15 @@ rich = [
     "rich",
     "rich-click",
 ]
+yaml = [
+    "pyyaml",
+]
+toml = [
+    "tomli-w",
+]
+all = [
+    "cpuz_parser[rich,yaml,toml]",
+]
 
 [dependency-groups]
 # Unlike optional dependencies,
@@ -60,17 +78,22 @@ dev = [
     "ipython",
     "ipdb",
     "debugpy",
+
     "pytest-watcher",  # Automatically rerun your tests on file modifications
+
     # Watch a Sphinx directory and rebuild the documentation when a change is detected.
     # Also includes a hot-reload web server
     "sphinx-autobuild",
+
+    "build",
+    "twine",
 ]
 
 # https://docs.astral.sh/uv/concepts/projects/dependencies/#dependency-groups
 # https://docs.astral.sh/uv/concepts/projects/dependencies/#nesting-groups
 ci = [
     {include-group = "docs"},
-    {include-group = "test"},
+    {include-group = "tests"},
     {include-group = "sca"},
 ]
 # --- Docs ---
@@ -82,7 +105,7 @@ docs = [
     # "sphinxcontrib-mermaid",
 ]
 # --- Automated Tests ---
-test = [
+tests = [
     "nox",
     "nox-uv",
     "pytest",
@@ -110,9 +133,11 @@ sca = [
     #   $ rm -rf .mypy_cache && MYPYPATH=src mypy --install-types --namespace-packages --explicit-package-bases .
     # On PowerShell:
     #   $ rm -Force .mypy_cache ; $env:MYPYPATH="src" ; uv run mypy --install-types --namespace-packages --explicit-package-bases .
-    "types-Pygments",
     "types-colorama",
     "types-pexpect",
+    "types-psutil",
+    "types-Pygments",
+    "types-PyYAML",
 ]
 
 # [tool.uv]
@@ -130,7 +155,7 @@ Issues = "https://github.com/Eliasdns/cpuz_parser/issues"
 
 # MARK: Commands
 [project.scripts]
-cpuz-parser = "cpuz_parser.cpuz_parser:main"
+cpuz_parser = "cpuz_parser.cli:main"
 
 
 # MARK: Build
@@ -143,9 +168,6 @@ build-backend = "hatchling.build"
 # $ pytest
 [tool.pytest.ini_options]
 pythonpath = "src"
-DJANGO_SETTINGS_MODULE = "core.settings"
-# https://playwright.dev/python/docs/test-runners#async-fixtures
-# asyncio_default_test_loop_scope = "session"
 testpaths = [
     "src",
     "tests",
@@ -164,7 +186,7 @@ addopts = [
     # "-rP",  # extra test summary info: char P
     # # "-rA",  # extra test summary info: char A
     "--tb=short",
-    "-p", "no:warnings",  # "--disable-warnings"
+    # "-p", "no:warnings",  # "--disable-warnings"
 
     # "--pdb", "--pdbcls=IPython.terminal.debugger:TerminalPdb",  # Debug breakpoints
     # "-s",  # Shortcut for --capture=no
@@ -252,14 +274,14 @@ ignore_missing_imports = true
 [tool.ruff]
 line-length = 120
 exclude = [
-    "__pycache__",
-    ".git",
-    "venv",
-    ".venv",
-    ".nox",
-    ".hypothesis",
-    ".vscode",
-    "/*_cache",
+    '__pycache__',
+    '.git',
+    'venv',
+    '.venv',
+    '.nox',
+    '.hypothesis',
+    '.vscode',
+    '/*_cache',
 ]
 
 # [tool.ruff.lint]

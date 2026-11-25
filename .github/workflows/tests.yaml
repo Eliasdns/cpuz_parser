@@ -1,0 +1,78 @@
+name: Run automatic Tests
+on:
+  pull_request:
+  workflow_dispatch:
+    inputs:
+      unit:
+        description: 'Run unit tests?'
+        required: false
+        type: boolean
+        default: true
+      slow:
+        description: 'Run slow tests?'
+        required: false
+        type: boolean
+        default: true
+      smoke:
+        description: 'Run smoke tests?'
+        required: false
+        type: boolean
+        default: true
+
+jobs:
+  tests:
+    name: Run Tests
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v7
+
+      - name: Install mise
+        run: |
+          curl https://mise.run | sh
+          echo "$HOME/.local/share/mise/bin" >> $GITHUB_PATH
+          echo "$HOME/.local/share/mise/shims" >> $GITHUB_PATH
+
+      - name: Install Dependencies
+        run: |
+          set -e
+          mise install
+          mise run install_deps:tests
+
+      - name: Checkout Private Fixtures
+        if: ${{ secrets.PRIV_FIXTURES_REPO_PAT != '' && secrets.PRIV_FIXTURES_PASSWORD != '' }}
+        uses: actions/checkout@v4
+        with:
+          repository: Eliasdns/cpuz_parser-priv_fixtures
+          token: ${{ secrets.PRIV_FIXTURES_REPO_PAT }}
+          ref: priv_fixtures
+          path: .priv_fixtures-repo
+          lfs: true
+
+      - name: Decrypt and Extract Private Fixtures
+        if: ${{ secrets.PRIV_FIXTURES_REPO_PAT != '' && secrets.PRIV_FIXTURES_PASSWORD != '' }}
+        env:
+          PRIV_FIXTURES_PASSWORD: ${{ secrets.PRIV_FIXTURES_PASSWORD }}
+        run: |
+          mise run priv_fixtures:unpack
+          rm -rf .priv_fixtures-repo
+
+      - name: Run Tests
+        env:
+          UNIT_TESTS: ${{ github.event_name == 'pull_request' || inputs.unit }}
+          SLOW_TESTS: ${{ github.event_name == 'pull_request' || inputs.slow }}
+          SMOKE_TESTS: ${{ github.event_name == 'pull_request' || inputs.smoke }}
+        run: |
+          set -e
+          markers=()
+          [[ "$UNIT_TESTS" == false ]] && markers+=("not unit")
+          [[ "$SLOW_TESTS" == false ]] && markers+=("not slow")
+          [[ "$SMOKE_TESTS" == false ]] && markers+=("not smoke")
+          if ((${#markers[@]})); then
+            IFS=':'
+            marker="${markers[*]}"
+            marker="${marker//:/ and }"
+            mise test -- -m "$marker"
+          else
+            mise test
+          fi

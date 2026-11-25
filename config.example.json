@@ -1,4 +1,5 @@
 {
+    "auto_combine_slots": true,
     "ram_freqs_single_mul2_to_friendly": {
         "1334": "1333",
         "1778": "1775",
