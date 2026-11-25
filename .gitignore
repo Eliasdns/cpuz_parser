@@ -246,6 +246,8 @@ $RECYCLE.BIN/
 config.json
 
 /priv_fixtures/
+priv_fixtures*.tar.gz*
+.priv_fixtures-repo/
 
 /*.bkp
 /*.bak
